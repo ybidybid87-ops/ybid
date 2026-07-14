@@ -1,5 +1,5 @@
 import { createContactSchedule } from "@/services/actions/contact-schedule";
-import { companyKeys, contactScheduleKeys, dashboardKeys } from "@/services/query-keys";
+import { adminKeys, companyKeys, contactScheduleKeys, dashboardKeys } from "@/services/query-keys";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function useCreateContactSchedule() {
@@ -19,6 +19,10 @@ export default function useCreateContactSchedule() {
 
       queryClient.invalidateQueries({
         queryKey: companyKeys.all,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: adminKeys.all,
       });
     },
   });

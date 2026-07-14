@@ -1,5 +1,5 @@
 import { archiveCompany } from "@/services/actions/company";
-import { companyKeys, dashboardKeys } from "@/services/query-keys";
+import { adminKeys, companyKeys, dashboardKeys } from "@/services/query-keys";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function useArchiveCompany() {
@@ -15,6 +15,10 @@ export default function useArchiveCompany() {
 
       queryClient.invalidateQueries({
         queryKey: dashboardKeys.all,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: adminKeys.all,
       });
     },
   });

@@ -1,5 +1,5 @@
 import { createCompany } from "@/services/actions/company";
-import { companyKeys } from "@/services/query-keys";
+import { adminKeys, companyKeys } from "@/services/query-keys";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function useCreateCompany() {
@@ -11,6 +11,10 @@ export default function useCreateCompany() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: companyKeys.lists(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: adminKeys.all,
       });
     },
   });

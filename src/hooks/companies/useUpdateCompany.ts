@@ -1,5 +1,5 @@
 import { updateCompany } from "@/services/actions/company";
-import { companyKeys } from "@/services/query-keys";
+import { adminKeys, companyKeys } from "@/services/query-keys";
 import { UpdateCompanyRequest } from "@/types/company";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -17,6 +17,10 @@ export default function useUpdateCompany() {
 
       queryClient.invalidateQueries({
         queryKey: companyKeys.lists(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: adminKeys.all,
       });
     },
   });

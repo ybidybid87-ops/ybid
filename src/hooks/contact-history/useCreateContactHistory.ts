@@ -1,5 +1,6 @@
 import { createContactHistory } from "@/services/actions/contact-history";
 import {
+  adminKeys,
   companyKeys,
   contactHistoryKeys,
   contactScheduleKeys,
@@ -56,6 +57,10 @@ export default function useCreateContactHistory() {
 
       queryClient.invalidateQueries({
         queryKey: dashboardKeys.all,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: adminKeys.all,
       });
     },
   });
