@@ -526,10 +526,10 @@ model companies {
   users_companies_owner_idTousers    users                       @relation("companies_owner_idTousers", fields: [owner_id], references: [id])
   teams                              teams?                      @relation(fields: [team_id], references: [id])
   business_licenses                  company_business_licenses[]
+  company_contacts                   company_contacts[]
   contact_histories                  contact_histories[]
   contact_schedules                  contact_schedules[]
   notifications                      notifications[]
-  company_contacts                   company_contacts[]
 
   @@index([owner_id])
   @@index([team_id])
@@ -539,15 +539,14 @@ model companies {
 }
 
 model company_contacts {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  company_id String   @db.Uuid
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id String    @db.Uuid
   name       String?
   phone      String
-  is_primary Boolean  @default(false)
-  sort_order Int      @default(0)
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-
-  company companies @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  is_primary Boolean   @default(false)
+  sort_order Int       @default(0)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  company    companies @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   @@index([company_id])
   @@schema("public")
@@ -562,12 +561,9 @@ model contact_schedules {
   completed_at DateTime?
   created_by   String    @db.Uuid
   completed_by String?   @db.Uuid
-
-  companies companies @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "contact_schedules_company_id_fkey1")
-
-  createdBy users @relation("contact_schedules_created_by", fields: [created_by], references: [id])
-
-  completedBy users? @relation("contact_schedules_completed_by", fields: [completed_by], references: [id], onDelete: SetNull)
+  companies    companies @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "contact_schedules_company_id_fkey1")
+  completedBy  users?    @relation("contact_schedules_completed_by", fields: [completed_by], references: [id])
+  createdBy    users     @relation("contact_schedules_created_by", fields: [created_by], references: [id])
 
   @@index([scheduled_at])
   @@index([company_id])
@@ -676,12 +672,12 @@ model users {
   name                                                  String
   email                                                 String
   role                                                  String               @default("member")
-  team_id                                               String?              @default(dbgenerated("'b174b77a-784a-4c43-b26c-cf5a16d6f08d'::uuid")) @db.Uuid
+  team_id                                               String?              @default(dbgenerated("'55474ed3-f105-4960-9fcf-58daeea8c61e'::uuid")) @db.Uuid
   companies_companies_archived_byTousers                companies[]          @relation("companies_archived_byTousers")
   companies_companies_owner_idTousers                   companies[]          @relation("companies_owner_idTousers")
   contact_histories                                     contact_histories[]
-  created_contact_schedules                             contact_schedules[]  @relation("contact_schedules_created_by")
   completed_contact_schedules                           contact_schedules[]  @relation("contact_schedules_completed_by")
+  created_contact_schedules                             contact_schedules[]  @relation("contact_schedules_created_by")
   monthly_top_sales_monthly_top_sales_created_byTousers monthly_top_sales[]  @relation("monthly_top_sales_created_byTousers")
   monthly_top_sales_monthly_top_sales_updated_byTousers monthly_top_sales[]  @relation("monthly_top_sales_updated_byTousers")
   monthly_top_sales_monthly_top_sales_user_idTousers    monthly_top_sales[]  @relation("monthly_top_sales_user_idTousers")
