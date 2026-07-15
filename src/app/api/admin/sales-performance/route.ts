@@ -2,7 +2,7 @@
 //src/app/api/admin/sales-performance/route.ts
 
 import { getUser } from "@/services/actions/user/user.api";
-import { NextRequest, NextResponse } from "next/server";
+import { connection, NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
 const KOREA_TIME_OFFSET = "+09:00";
@@ -26,6 +26,7 @@ function getMonthRange(year: number, month: number) {
 }
 
 export async function GET(request: NextRequest) {
+  await connection();
   try {
     const authUser = await getUser();
 
