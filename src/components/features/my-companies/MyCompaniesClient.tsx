@@ -17,12 +17,12 @@ import useUser from "@/hooks/user/useUser";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-/* const SALES_STATUS_LABELS: Record<string, string> = {
-  new: "진행 중",
-  contracted: "계약 완료",
-}; */
+type Props = {
+  ownerId?: string;
+  showCreateButton?: boolean;
+};
 
-export default function MyCompaniesClient() {
+export default function MyCompaniesClient({ ownerId, showCreateButton = true }: Props) {
   const { data: user, isPending: isUserPending } = useUser();
 
   const [keyword, setKeyword] = useState("");
@@ -31,15 +31,17 @@ export default function MyCompaniesClient() {
   const [salesStatus, setSalesStatus] = useState("all");
   const [region, setRegion] = useState("all");
 
+  const targetOwnerId = ownerId ?? user?.id;
+
   const params = useMemo(
     () => ({
-      ownerId: user?.id,
+      ownerId: targetOwnerId,
       keyword: searchKeyword,
       interestLevel: interestLevel === "all" ? undefined : interestLevel,
       salesStatus: salesStatus === "all" ? undefined : salesStatus,
       region: region === "all" ? undefined : region,
     }),
-    [user?.id, searchKeyword, interestLevel, salesStatus, region],
+    [targetOwnerId, searchKeyword, interestLevel, salesStatus, region],
   );
 
   const {
@@ -56,7 +58,7 @@ export default function MyCompaniesClient() {
     setRegion("all");
   };
 
-  if (isUserPending || isCompaniesPending) {
+  if ((!ownerId && isUserPending) || isCompaniesPending) {
     return <Loading />;
   }
 
@@ -116,26 +118,15 @@ export default function MyCompaniesClient() {
               </SelectContent>
             </Select>
 
-            {/* <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger className="w-44">
-                <SelectValue placeholder="지역 전체" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="all">지역 전체</SelectItem>
-                <SelectItem value="서울특별시 강남구">서울특별시 강남구</SelectItem>
-                <SelectItem value="서울특별시 서초구">서울특별시 서초구</SelectItem>
-                <SelectItem value="경기도 성남시">경기도 성남시</SelectItem>
-              </SelectContent>
-            </Select> */}
-
             <Button variant="outline" onClick={resetFilters} disabled={isCompaniesFetching}>
               초기화
             </Button>
 
-            <Button asChild className="ml-auto">
-              <Link href="/companies/new">업체 등록</Link>
-            </Button>
+            {showCreateButton && (
+              <Button asChild className="ml-auto">
+                <Link href="/companies/new">업체 등록</Link>
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
