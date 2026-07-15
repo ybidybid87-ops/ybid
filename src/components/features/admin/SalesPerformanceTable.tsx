@@ -11,6 +11,7 @@ import {
 
 import { AdminSalesPerformanceItem } from "@/types/admin-sales-performance";
 import { Trophy } from "lucide-react";
+import Link from "next/link";
 
 type Props = {
   items: AdminSalesPerformanceItem[];
@@ -68,7 +69,14 @@ export default function SalesPerformanceTable({ items, isPending }: Props) {
                     {getRankContent(item.rank)}
                   </TableCell>
 
-                  <TableCell className="font-semibold">{item.name}</TableCell>
+                  <TableCell className="font-semibold">
+                    <Link
+                      href={`/admin/users/${item.userId}/companies`}
+                      className="transition-colors hover:text-primary hover:underline"
+                    >
+                      {item.name}
+                    </Link>
+                  </TableCell>
 
                   <TableCell className="text-center">{item.companyCount}개</TableCell>
 
