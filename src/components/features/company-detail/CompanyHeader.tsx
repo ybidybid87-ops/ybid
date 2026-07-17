@@ -1,3 +1,4 @@
+import ChangeCompanyOwnerButton from "@/components/common/buttons/ChangeCompanyOwnerButton";
 import CompleteContactButton from "@/components/common/buttons/CompleteContactButton";
 import ToggleContractButton from "@/components/common/buttons/ToggleContractButton";
 import { Button } from "@/components/ui/button";
@@ -17,13 +18,20 @@ interface Props {
 
 export default function CompanyHeader({ company }: Props) {
   const { data: me } = useUser();
+
   const nextSchedule = company.contact_schedules[0];
+
+  const isOwner = me?.id === company.owner_id;
+
+  const canChangeOwner =
+    me?.role === "admin" || (me?.role === "leader" && me.team_id === company.team_id);
+
   return (
-    <Card className="rounded-[32px] border border-slate-200 shadow-lg p-0">
+    <Card className="rounded-[32px] border border-slate-200 p-0 shadow-lg">
       <CardContent className="space-y-10 bg-linear-to-br from-white to-slate-50 p-10">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-6">
           <div className="flex gap-5">
-            <div className="flex h-28 w-28 items-center justify-center rounded-[32px] bg-linear-to-br from-blue-50 to-indigo-50">
+            <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-[32px] bg-linear-to-br from-blue-50 to-indigo-50">
               <Building2 className="h-14 w-14 text-blue-600" />
             </div>
 
@@ -45,28 +53,35 @@ export default function CompanyHeader({ company }: Props) {
             </div>
           </div>
 
-          {/* 수정 삭제 계약완료 버튼 */}
-          {me?.id === company.owner_id ? (
-            <div className="flex gap-3">
-              <Button asChild variant="outline" className="h-12 rounded-2xl px-6">
-                <Link href={`/companies/${company.id}/edit`}>
-                  <Pencil size={16} />
-                  수정
-                </Link>
-              </Button>
-
-              <ArchiveCompanyButton companyId={company.id} />
-
-              <ToggleContractButton
+          <div className="flex flex-wrap justify-end gap-3">
+            {canChangeOwner ? (
+              <ChangeCompanyOwnerButton
                 companyId={company.id}
-                salesStatus={company.sales_status}
-                className="h-12 rounded-2xl px-6"
+                currentOwnerName={company.users_companies_owner_idTousers.name}
               />
-            </div>
-          ) : null}
+            ) : null}
+
+            {isOwner ? (
+              <>
+                <Button asChild variant="outline" className="h-12 rounded-2xl px-6">
+                  <Link href={`/companies/${company.id}/edit`}>
+                    <Pencil size={16} />
+                    수정
+                  </Link>
+                </Button>
+
+                <ArchiveCompanyButton companyId={company.id} />
+
+                <ToggleContractButton
+                  companyId={company.id}
+                  salesStatus={company.sales_status}
+                  className="h-12 rounded-2xl px-6"
+                />
+              </>
+            ) : null}
+          </div>
         </div>
 
-        {/* 정보 카드 영역 */}
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           <SummaryCard
             label="담당 영업사원"
@@ -78,7 +93,7 @@ export default function CompanyHeader({ company }: Props) {
             }
           />
 
-          {company.teams && (
+          {/*  {company.teams ? (
             <SummaryCard
               label="소속 팀"
               value={company.teams.name}
@@ -88,7 +103,7 @@ export default function CompanyHeader({ company }: Props) {
                 </div>
               }
             />
-          )}
+          ) : null} */}
 
           <SummaryCard
             label="다음 연락일"
@@ -99,7 +114,7 @@ export default function CompanyHeader({ company }: Props) {
               </div>
             }
           >
-            {nextSchedule && <CompleteContactButton scheduleId={nextSchedule.id} />}
+            {nextSchedule ? <CompleteContactButton scheduleId={nextSchedule.id} /> : null}
           </SummaryCard>
         </div>
       </CardContent>

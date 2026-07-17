@@ -14,6 +14,9 @@ export const companyKeys = {
   details: () => [...companyKeys.all, "detail"] as const,
 
   detail: (companyId: string) => [...companyKeys.details(), companyId] as const,
+
+  ownerCandidates: (companyId: string) =>
+    [...companyKeys.detail(companyId), "owner-candidates"] as const,
 };
 
 export const contactHistoryKeys = {
