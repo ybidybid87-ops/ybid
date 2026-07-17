@@ -27,6 +27,7 @@ export async function GET() {
       name: true,
       role: true,
       created_at: true,
+      team_id: true,
     },
   });
 

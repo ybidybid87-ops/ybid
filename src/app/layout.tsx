@@ -2,6 +2,7 @@ import AppSidebar from "@/components/AppSidebar";
 import Header from "@/components/common/header/Header";
 import { QueryProvider } from "@/components/QueryProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -57,6 +58,7 @@ export default function RootLayout({
                 <AppSidebar />
                 <main className="mt-17.5 flex-1 px-4 mx-auto p-6 overflow-y-auto scrollbar-hide w-full flex flex-col max-w-360 min-w-360">
                   {children}
+                  <Toaster />
                 </main>
               </SidebarProvider>
             </TooltipProvider>
