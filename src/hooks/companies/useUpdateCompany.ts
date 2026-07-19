@@ -16,7 +16,7 @@ export default function useUpdateCompany() {
       });
 
       queryClient.invalidateQueries({
-        queryKey: companyKeys.lists(),
+        queryKey: companyKeys.all,
       });
 
       queryClient.invalidateQueries({

@@ -46,6 +46,17 @@ export type CompanyListParams = {
   interestLevel?: string;
   salesStatus?: string;
   region?: string;
+
+  page?: number;
+  pageSize?: number;
+};
+
+export type CompanyListResponse = {
+  companies: CompanySummary[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
 };
 
 /* -------------------------------------------------------------------------- */
