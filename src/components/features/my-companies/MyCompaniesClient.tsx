@@ -1,5 +1,6 @@
 "use client";
 
+import AppPagination from "@/components/common/AppPagination";
 import CompanyTable from "@/components/common/CompanyTable";
 import Loading from "@/components/common/Loading";
 import { Button } from "@/components/ui/button";
@@ -12,10 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
+import { useScrollToTopOnPageChange } from "@/hooks/common/useScrollToTopOnPageChange";
 import useCompanies from "@/hooks/companies/useCompanies";
 import useUser from "@/hooks/user/useUser";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 type Props = {
   ownerId?: string;
@@ -25,6 +28,7 @@ type Props = {
 export default function MyCompaniesClient({ ownerId, showCreateButton = true }: Props) {
   const { data: user, isPending: isUserPending } = useUser();
 
+  const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [interestLevel, setInterestLevel] = useState("all");
@@ -33,6 +37,10 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
 
   const targetOwnerId = ownerId ?? user?.id;
 
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useScrollToTopOnPageChange(sectionRef, page);
+
   const params = useMemo(
     () => ({
       ownerId: targetOwnerId,
@@ -40,17 +48,26 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
       interestLevel: interestLevel === "all" ? undefined : interestLevel,
       salesStatus: salesStatus === "all" ? undefined : salesStatus,
       region: region === "all" ? undefined : region,
+      page,
+      pageSize: DEFAULT_PAGE_SIZE,
     }),
-    [targetOwnerId, searchKeyword, interestLevel, salesStatus, region],
+    [targetOwnerId, searchKeyword, interestLevel, salesStatus, region, page],
   );
 
   const {
-    data: companies = [],
+    data,
     isPending: isCompaniesPending,
     isFetching: isCompaniesFetching,
   } = useCompanies(params);
 
+  const handleSearch = () => {
+    setPage(1);
+    setSearchKeyword(keyword);
+  };
+
   const resetFilters = () => {
+    setPage(1);
+
     setKeyword("");
     setSearchKeyword("");
     setInterestLevel("all");
@@ -63,7 +80,7 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
   }
 
   return (
-    <div className="space-y-6">
+    <div ref={sectionRef} className="space-y-6">
       <Card className="rounded-2xl border border-gray-100 shadow-sm">
         <CardContent className="space-y-4 p-6">
           <div className="flex gap-3">
@@ -73,13 +90,13 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  setSearchKeyword(keyword);
+                  handleSearch();
                 }
               }}
               placeholder="업체명, 대표자, 담당자, 연락처, 지역 검색"
             />
 
-            <Button onClick={() => setSearchKeyword(keyword)} disabled={isCompaniesFetching}>
+            <Button onClick={handleSearch} disabled={isCompaniesFetching}>
               {isCompaniesFetching ? "검색 중..." : "검색"}
             </Button>
           </div>
@@ -87,7 +104,10 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
           <div className="flex items-center gap-3">
             <Select
               value={interestLevel}
-              onValueChange={setInterestLevel}
+              onValueChange={(value) => {
+                setPage(1);
+                setInterestLevel(value);
+              }}
               disabled={isCompaniesFetching}
             >
               <SelectTrigger className="w-40">
@@ -104,7 +124,10 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
 
             <Select
               value={salesStatus}
-              onValueChange={setSalesStatus}
+              onValueChange={(value) => {
+                setPage(1);
+                setSalesStatus(value);
+              }}
               disabled={isCompaniesFetching}
             >
               <SelectTrigger className="w-44">
@@ -131,7 +154,9 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
         </CardContent>
       </Card>
 
-      <CompanyTable companies={companies} isLoading={isCompaniesFetching} />
+      <CompanyTable companies={data?.companies ?? []} isLoading={isCompaniesFetching} />
+
+      <AppPagination page={page} totalPages={data?.totalPages ?? 1} onPageChange={setPage} />
     </div>
   );
 }

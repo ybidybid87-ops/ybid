@@ -3,13 +3,14 @@ import { getDashboard } from "../actions/dashboard";
 import { dashboardKeys } from "../query-keys";
 
 export const dashboardQueries = {
-  summary: (userId: string) =>
+  summary: (params: { userId: string; page: number; pageSize: number }) =>
     queryOptions({
-      queryKey: dashboardKeys.summary(userId),
+      queryKey: dashboardKeys.summary(params),
 
-      queryFn: () => getDashboard(userId),
+      queryFn: () => getDashboard(params),
 
-      enabled: !!userId,
+      enabled: !!params.userId,
+
       refetchOnMount: "always",
     }),
 };

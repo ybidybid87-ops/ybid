@@ -1,5 +1,7 @@
 // app/api/companies/route.ts
 
+import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/constants/pagination";
+import { Prisma } from "@/generated/prisma/client";
 import { getUser } from "@/services/actions/user/user.api";
 import { InterestLevel } from "@/types/common";
 import { CreateCompanyRequest } from "@/types/company";
@@ -16,118 +18,142 @@ export async function GET(request: NextRequest) {
   const salesStatus = searchParams.get("salesStatus");
   const region = searchParams.get("region");
 
-  const companies = await prisma.companies.findMany({
-    where: {
-      is_archived: false,
+  const page = Math.max(Number(searchParams.get("page") ?? 1), 1);
 
-      ...(ownerId && {
-        owner_id: ownerId,
-      }),
+  const pageSize = Math.min(
+    Math.max(Number(searchParams.get("pageSize") ?? DEFAULT_PAGE_SIZE), 1),
+    MAX_PAGE_SIZE,
+  );
 
-      ...(teamId && {
-        team_id: teamId,
-      }),
+  const skip = (page - 1) * pageSize;
 
-      ...(interestLevel && {
-        interest_level: interestLevel as InterestLevel,
-      }),
+  const where: Prisma.companiesWhereInput = {
+    is_archived: false,
 
-      ...(salesStatus && {
-        sales_status: salesStatus,
-      }),
+    ...(ownerId && {
+      owner_id: ownerId,
+    }),
 
-      ...(region && {
-        region,
-      }),
+    ...(teamId && {
+      team_id: teamId,
+    }),
 
-      ...(keyword && {
-        OR: [
-          {
-            name: {
-              contains: keyword,
-              mode: "insensitive",
-            },
+    ...(interestLevel && {
+      interest_level: interestLevel as InterestLevel,
+    }),
+
+    ...(salesStatus && {
+      sales_status: salesStatus,
+    }),
+
+    ...(region && {
+      region,
+    }),
+
+    ...(keyword && {
+      OR: [
+        {
+          name: {
+            contains: keyword,
+            mode: "insensitive",
           },
-          {
-            ceo_name: {
-              contains: keyword,
-              mode: "insensitive",
-            },
+        },
+        {
+          ceo_name: {
+            contains: keyword,
+            mode: "insensitive",
           },
-          {
-            ceo_phone: {
-              contains: keyword,
-              mode: "insensitive",
-            },
+        },
+        {
+          ceo_phone: {
+            contains: keyword,
           },
-          {
-            company_contacts: {
-              some: {
-                OR: [
-                  {
-                    name: {
-                      contains: keyword,
-                      mode: "insensitive",
-                    },
+        },
+        {
+          company_contacts: {
+            some: {
+              OR: [
+                {
+                  name: {
+                    contains: keyword,
+                    mode: "insensitive",
                   },
-                  {
-                    phone: {
-                      contains: keyword,
-                    },
+                },
+                {
+                  phone: {
+                    contains: keyword,
                   },
-                ],
-              },
+                },
+              ],
             },
           },
-          {
-            region: {
-              contains: keyword,
-              mode: "insensitive",
-            },
+        },
+        {
+          region: {
+            contains: keyword,
+            mode: "insensitive",
           },
-        ],
-      }),
-    },
+        },
+      ],
+    }),
+  };
 
-    include: {
-      company_contacts: {
-        orderBy: {
-          sort_order: "asc",
+  const [companies, totalCount] = await prisma.$transaction([
+    prisma.companies.findMany({
+      where,
+      skip,
+      take: pageSize,
+
+      include: {
+        company_contacts: {
+          orderBy: {
+            sort_order: "asc",
+          },
+        },
+
+        business_licenses: {
+          orderBy: {
+            created_at: "asc",
+          },
+        },
+
+        users_companies_owner_idTousers: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+
+        teams: true,
+
+        contact_schedules: {
+          orderBy: {
+            scheduled_at: "asc",
+          },
         },
       },
 
-      business_licenses: {
-        orderBy: {
-          created_at: "asc",
-        },
+      orderBy: {
+        created_at: "desc",
       },
+    }),
 
-      users_companies_owner_idTousers: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-        },
-      },
-
-      teams: true,
-
-      contact_schedules: {
-        orderBy: {
-          scheduled_at: "asc",
-        },
-      },
-    },
-
-    orderBy: {
-      created_at: "desc",
-    },
-  });
+    prisma.companies.count({
+      where,
+    }),
+  ]);
 
   return NextResponse.json({
     success: true,
-    data: companies,
+    data: {
+      companies,
+      page,
+      pageSize,
+      totalCount,
+      totalPages: Math.ceil(totalCount / pageSize),
+    },
   });
 }
 

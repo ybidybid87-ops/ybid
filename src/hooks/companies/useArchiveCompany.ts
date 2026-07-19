@@ -10,7 +10,7 @@ export default function useArchiveCompany() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: companyKeys.lists(),
+        queryKey: companyKeys.all,
       });
 
       queryClient.invalidateQueries({

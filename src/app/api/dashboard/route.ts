@@ -1,8 +1,13 @@
+// app/api/dashboard/route.ts
+
+import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("userId");
+  const page = Number(request.nextUrl.searchParams.get("page")) || 1;
+  const pageSize = Number(request.nextUrl.searchParams.get("pageSize")) || DEFAULT_PAGE_SIZE;
 
   if (!userId || userId === "undefined") {
     return NextResponse.json(
@@ -162,6 +167,9 @@ export async function GET(request: NextRequest) {
           },
         },
       ],
+      skip: (page - 1) * pageSize,
+
+      take: pageSize,
     }),
   ]);
 
@@ -183,7 +191,14 @@ export async function GET(request: NextRequest) {
       todayContactCount,
       overdueContactCount,
       contractedThisMonthCount,
+
       todayContacts,
+
+      page,
+
+      pageSize,
+
+      totalPages: Math.ceil(todayContactCount / pageSize),
     },
   });
 }
