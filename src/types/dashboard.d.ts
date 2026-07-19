@@ -16,11 +16,18 @@ export type DashboardResponse = {
   todayContactCount: number;
   overdueContactCount: number;
   contractedThisMonthCount: number;
-  todayContacts: DashboardTodayContact[];
 
   interestLevelCounts: {
     high: number;
     medium: number;
     low: number;
   };
+
+  todayContacts: DashboardTodayContact[];
+
+  page: number;
+
+  pageSize: number;
+
+  totalPages: number;
 };

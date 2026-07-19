@@ -45,7 +45,8 @@ export const contractKeys = {
 export const dashboardKeys = {
   all: ["dashboard"] as const,
 
-  summary: (userId: string) => [...dashboardKeys.all, userId] as const,
+  summary: (params: { userId: string; page: number; pageSize: number }) =>
+    [...dashboardKeys.all, "summary", params] as const,
 };
 
 export const monthlyTopSalesKeys = {
