@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -115,9 +114,9 @@ export default function AppSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <div className="px-2 text-sm text-muted-foreground">김현준</div>
-      </SidebarFooter>
+      </SidebarFooter> */}
     </Sidebar>
   );
 }
