@@ -68,4 +68,6 @@ export const adminKeys = {
 
   salesPerformance: (year: number, month: number) =>
     [...adminKeys.all, "sales-performance", year, month] as const,
+
+  dashboardStats: () => [...adminKeys.all, "dashboard-stats"] as const,
 };
