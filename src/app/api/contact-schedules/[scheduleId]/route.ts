@@ -1,5 +1,6 @@
 // api/contact-schedules/[scheduleId]/route.ts
 //업체 담당자가 아닌 연락 완료 버튼 누른 사람 콜수 증가함
+import { parseKoreaDate } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
@@ -43,7 +44,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
       data: {
         ...(body.scheduledAt && {
-          scheduled_at: new Date(body.scheduledAt),
+          scheduled_at: parseKoreaDate(body.scheduledAt),
         }),
 
         ...(body.memo !== undefined && {
