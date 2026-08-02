@@ -1,3 +1,4 @@
+import { parseKoreaDate } from "@/lib/date";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
     data: {
       company_id: body.companyId,
 
-      scheduled_at: new Date(body.scheduledAt),
+      scheduled_at: parseKoreaDate(body.scheduledAt),
 
       memo: body.memo,
 

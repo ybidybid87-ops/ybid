@@ -1,3 +1,5 @@
+//api/companies/[companyId]/contract/route.ts
+
 import { verifyCompanyPermission } from "@/lib/company-permission";
 import { getUser } from "@/services/actions/user/user.api";
 import { NextRequest, NextResponse } from "next/server";

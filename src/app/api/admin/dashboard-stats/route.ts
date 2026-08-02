@@ -1,7 +1,7 @@
 //api/admin/dashboard-stats/route.ts
 
+import { getMonthRange, getToday } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
-import { addMonths, startOfDay, startOfMonth } from "date-fns";
 import { NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
@@ -20,13 +20,9 @@ export async function GET() {
     );
   }
 
-  const today = new Date();
+  const todayDate = getToday();
 
-  const todayDate = startOfDay(today);
-
-  const monthStart = startOfMonth(today);
-
-  const monthEnd = addMonths(monthStart, 1);
+  const { startDate: monthStart, endDate: monthEnd } = getMonthRange();
 
   const [
     companyCount,

@@ -2,6 +2,7 @@
 
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/constants/pagination";
 import { Prisma } from "@/generated/prisma/client";
+import { parseKoreaDate } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
 import { InterestLevel } from "@/types/common";
 import { CreateCompanyRequest } from "@/types/company";
@@ -236,7 +237,7 @@ export async function POST(request: NextRequest) {
       await tx.contact_schedules.create({
         data: {
           company_id: createdCompany.id,
-          scheduled_at: new Date(body.contactSchedule.scheduledAt),
+          scheduled_at: parseKoreaDate(body.contactSchedule.scheduledAt),
           memo: body.contactSchedule.memo,
           created_by: authUser.id,
         },

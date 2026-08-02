@@ -1,6 +1,7 @@
 // app/api/dashboard/route.ts
 
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
+import { getMonthRange, getToday } from "@/lib/date";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
@@ -35,21 +36,9 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const today = new Date();
+  const todayDate = getToday();
 
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-
-  const endOfToday = new Date(startOfToday);
-  endOfToday.setDate(endOfToday.getDate() + 1);
-
-  const todayDate = new Date(
-    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
-  );
+  const { startDate: monthStart, endDate: monthEnd } = getMonthRange();
 
   let companyWhere = {};
 
@@ -82,10 +71,12 @@ export async function GET(request: NextRequest) {
 
     prisma.companies.groupBy({
       by: ["interest_level"],
+
       where: {
         ...companyWhere,
         is_archived: false,
       },
+
       _count: {
         _all: true,
       },
@@ -94,7 +85,9 @@ export async function GET(request: NextRequest) {
     prisma.contact_schedules.count({
       where: {
         completed: false,
+
         scheduled_at: todayDate,
+
         companies: {
           ...companyWhere,
           is_archived: false,
@@ -105,9 +98,11 @@ export async function GET(request: NextRequest) {
     prisma.contact_schedules.count({
       where: {
         completed: false,
+
         scheduled_at: {
           lt: todayDate,
         },
+
         companies: {
           ...companyWhere,
           is_archived: false,
@@ -118,10 +113,12 @@ export async function GET(request: NextRequest) {
     prisma.companies.count({
       where: {
         ...companyWhere,
+
         is_archived: false,
+
         contracted_at: {
-          gte: startOfMonth,
-          lt: endOfMonth,
+          gte: monthStart,
+          lt: monthEnd,
         },
       },
     }),
@@ -129,32 +126,43 @@ export async function GET(request: NextRequest) {
     prisma.contact_schedules.findMany({
       where: {
         completed: false,
+
         scheduled_at: todayDate,
+
         companies: {
           ...companyWhere,
           is_archived: false,
         },
       },
+
       select: {
         id: true,
+
         scheduled_at: true,
+
         companies: {
           select: {
             id: true,
+
             name: true,
+
             interest_level: true,
+
             company_contacts: {
               where: {
                 is_primary: true,
               },
+
               orderBy: {
                 sort_order: "asc",
               },
+
               take: 1,
             },
           },
         },
       },
+
       orderBy: [
         {
           companies: {
@@ -167,6 +175,7 @@ export async function GET(request: NextRequest) {
           },
         },
       ],
+
       skip: (page - 1) * pageSize,
 
       take: pageSize,
@@ -185,11 +194,16 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     success: true,
+
     data: {
       myCompanyCount,
+
       interestLevelCounts,
+
       todayContactCount,
+
       overdueContactCount,
+
       contractedThisMonthCount,
 
       todayContacts,

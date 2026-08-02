@@ -1,29 +1,10 @@
 //관리자 영업 현황 API
 //src/app/api/admin/sales-performance/route.ts
 
+import { getKoreaNow, getMonthRange } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
 import { connection, NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
-
-const KOREA_TIME_OFFSET = "+09:00";
-
-function getMonthRange(year: number, month: number) {
-  const startDate = new Date(
-    `${year}-${String(month).padStart(2, "0")}-01T00:00:00${KOREA_TIME_OFFSET}`,
-  );
-
-  const nextYear = month === 12 ? year + 1 : year;
-  const nextMonth = month === 12 ? 1 : month + 1;
-
-  const endDate = new Date(
-    `${nextYear}-${String(nextMonth).padStart(2, "0")}-01T00:00:00${KOREA_TIME_OFFSET}`,
-  );
-
-  return {
-    startDate,
-    endDate,
-  };
-}
 
 export async function GET(request: NextRequest) {
   await connection();
@@ -56,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
 
-    const now = new Date();
+    const now = getKoreaNow();
 
     const year = Number(searchParams.get("year") ?? now.getFullYear());
 
