@@ -12,14 +12,11 @@ export function getKoreaNow() {
 }
 
 //오늘 날짜(@db.Date) 비교용
+// 오늘 날짜(@db.Date) 비교용
 export function getToday() {
   const now = getKoreaNow();
 
-  return new Date(
-    `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
-      now.getDate(),
-    ).padStart(2, "0")}T00:00:00${KOREA_TIME_OFFSET}`,
-  );
+  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 }
 
 //이번 달 범위 조회

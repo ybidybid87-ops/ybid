@@ -1,7 +1,7 @@
 "use client";
 
 import { Building2, CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,15 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
 
   const [scheduledAt, setScheduledAt] = useState(contact.scheduled_at.slice(0, 10));
   const [memo, setMemo] = useState("");
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    setScheduledAt(contact.scheduled_at.slice(0, 10));
+    setMemo("");
+  }, [open, contact]);
 
   const handleUpdate = () => {
     updateMutation(
