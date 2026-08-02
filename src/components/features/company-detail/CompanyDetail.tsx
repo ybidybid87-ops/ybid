@@ -13,7 +13,7 @@ import CompanySalesInfo from "./CompanySalesInfo";
 export default function CompanyDetail() {
   const { companyId } = useParams<{ companyId: string }>();
   const { data: company, isPending } = useCompany(companyId);
-  console.log("company", company);
+
   if (isPending) {
     return <Loading />;
   }
