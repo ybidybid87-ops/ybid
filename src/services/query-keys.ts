@@ -49,10 +49,10 @@ export const dashboardKeys = {
     [...dashboardKeys.all, "summary", params] as const,
 };
 
-export const monthlyTopSalesKeys = {
-  all: ["monthly-top-sales"] as const,
+export const monthlySalesRankingKeys = {
+  all: ["monthly-sales-rankings"] as const,
 
-  current: (year: number, month: number) => [...monthlyTopSalesKeys.all, year, month] as const,
+  list: () => [...monthlySalesRankingKeys.all, "list"] as const,
 };
 
 export const notificationKeys = {

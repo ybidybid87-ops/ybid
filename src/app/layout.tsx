@@ -46,9 +46,9 @@ export default function RootLayout({
         geistHeading.variable,
       )}
     >
-      <body className="min-h-screen bg-background">
+      <body className="h-screen bg-background">
         <QueryProvider>
-          <div className="flex flex-col flex-1 w-full font-pretendard ">
+          <div className="flex flex-col flex-1 w-full h-full font-pretendard">
             {/* 헤더 자리 */}
             <Header />
 

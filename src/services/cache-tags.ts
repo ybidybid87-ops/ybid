@@ -15,7 +15,7 @@ export const CACHE_TAGS = {
 
   dashboard: (userId: string) => `dashboard:${userId}`,
 
-  monthlyTopSales: "monthly-top-sales",
+  monthlySalesRankings: "monthly-sales-rankings",
 
   notifications: (userId: string) => `notifications:${userId}`,
 } as const;
