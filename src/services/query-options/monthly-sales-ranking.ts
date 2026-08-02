@@ -7,5 +7,6 @@ export const monthlySalesRankingQueries = {
     queryOptions({
       queryKey: monthlySalesRankingKeys.list(),
       queryFn: getMonthlySalesRankings,
+      refetchInterval: 60000, // 1분
     }),
 };

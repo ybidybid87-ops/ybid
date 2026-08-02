@@ -1,3 +1,5 @@
+// /api/monthly-sales-rankings/route.ts
+
 import { addMonths, startOfMonth } from "date-fns";
 import { NextResponse } from "next/server";
 import prisma from "prisma/prisma";
@@ -14,12 +16,10 @@ export async function GET() {
         not: "admin",
       },
     },
-
     include: {
       companies_companies_owner_idTousers: {
         where: {
           sales_status: "contracted",
-
           contracted_at: {
             gte: start,
             lt: end,
@@ -44,13 +44,12 @@ export async function GET() {
     })
     .map((user, index) => ({
       rank: index + 1,
-
       userId: user.userId,
-
       name: user.name,
-
       contractCount: user.contractCount,
     }));
 
-  return NextResponse.json(rankings);
+  return NextResponse.json({
+    data: rankings,
+  });
 }
