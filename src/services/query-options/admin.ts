@@ -8,11 +8,13 @@ export const adminQueries = {
     queryOptions({
       queryKey: adminKeys.salesPerformance(year, month),
       queryFn: () => getAdminSalesPerformance(year, month),
+      refetchOnMount: "always",
     }),
 
   dashboardStats: () =>
     queryOptions({
       queryKey: adminKeys.dashboardStats(),
       queryFn: getAdminDashboardStats,
+      refetchOnMount: "always",
     }),
 };

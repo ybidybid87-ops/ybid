@@ -118,6 +118,15 @@ export function formatDate(date: string | Date) {
   return format(new Date(date), "yyyy.MM.dd");
 }
 
+/* DB Date -> input[type=date] 값 변환 */
+export function formatDateInput(date: string | Date) {
+  if (typeof date === "string") {
+    return date.slice(0, 10);
+  }
+
+  return date.toISOString().slice(0, 10);
+}
+
 /* 수정/등록 페이지 폼 초기값 변환 함수 */
 export function toCompanyFormValues(company: CompanyDetail): CreateCompanyFormValues {
   return {
@@ -140,7 +149,7 @@ export function toCompanyFormValues(company: CompanyDetail): CreateCompanyFormVa
     salesStatus: company.sales_status as CreateCompanyFormValues["salesStatus"],
 
     scheduledAt: company.contact_schedules[0]?.scheduled_at
-      ? format(new Date(company.contact_schedules[0].scheduled_at), "yyyy-MM-dd")
+      ? formatDateInput(company.contact_schedules[0].scheduled_at)
       : "",
 
     memo: company.memo ?? "",

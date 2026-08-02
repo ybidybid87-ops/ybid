@@ -48,7 +48,9 @@ export function getMonthRange(year?: number, month?: number) {
 
 //사용자가 입력한 날짜를 DB에 저장
 export function parseKoreaDate(date: string) {
-  return new Date(`${date}T00:00:00${KOREA_TIME_OFFSET}`);
+  const [year, month, day] = date.split("-").map(Number);
+
+  return new Date(Date.UTC(year, month - 1, day));
 }
 
 //Date를 한국 시간 기준 YYYY-MM-DD 문자열로 변환
