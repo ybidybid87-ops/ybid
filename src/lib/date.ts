@@ -50,3 +50,25 @@ export function getMonthRange(year?: number, month?: number) {
 export function parseKoreaDate(date: string) {
   return new Date(`${date}T00:00:00${KOREA_TIME_OFFSET}`);
 }
+
+//Date를 한국 시간 기준 YYYY-MM-DD 문자열로 변환
+export function getKoreaDateKey(value: string | Date) {
+  const date = new Date(value);
+
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+
+  if (!year || !month || !day) {
+    return "";
+  }
+
+  return `${year}-${month}-${day}`;
+}

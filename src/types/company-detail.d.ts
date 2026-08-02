@@ -1,4 +1,5 @@
 import { InterestLevel } from "./common";
+import { Tables } from "./database.types";
 
 export type CompanyDetail = Tables<"companies"> & {
   company_contacts: Tables<"company_contacts">[];
