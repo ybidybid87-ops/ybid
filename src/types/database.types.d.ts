@@ -278,67 +278,6 @@ export type Database = {
           },
         ]
       }
-      monthly_top_sales: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          display_text: string
-          id: string
-          is_visible: boolean
-          month: number
-          updated_at: string
-          updated_by: string | null
-          user_id: string | null
-          year: number
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          display_text: string
-          id?: string
-          is_visible?: boolean
-          month: number
-          updated_at?: string
-          updated_by?: string | null
-          user_id?: string | null
-          year: number
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          display_text?: string
-          id?: string
-          is_visible?: boolean
-          month?: number
-          updated_at?: string
-          updated_by?: string | null
-          user_id?: string | null
-          year?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "monthly_top_sales_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "monthly_top_sales_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "monthly_top_sales_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       notification_reads: {
         Row: {
           notification_id: string

@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import useUser from "@/hooks/user/useUser";
 import Image from "next/image";
+import MonthlySalesRankingCard from "./features/monthly-sales-ranking/MonthlySalesRankingCard";
 
 const salesMenus = [
   {
@@ -51,10 +53,9 @@ const adminMenus = [
 
 export default function AppSidebar() {
   const { data: user } = useUser();
-
   const canAccessAdmin = user?.role === "leader" || user?.role === "admin";
   return (
-    <Sidebar variant="sidebar" collapsible="icon" className="font-semibold bg-white">
+    <Sidebar variant="sidebar" collapsible="icon" className="font-semibold bg-white h-full">
       <SidebarHeader className="flex flex-row items-center justify-between">
         <div className="group-data-[state=collapsed]:hidden" />
 
@@ -114,9 +115,9 @@ export default function AppSidebar() {
         )}
       </SidebarContent>
 
-      {/* <SidebarFooter>
-        <div className="px-2 text-sm text-muted-foreground">김현준</div>
-      </SidebarFooter> */}
+      <SidebarFooter>
+        <MonthlySalesRankingCard />
+      </SidebarFooter>
     </Sidebar>
   );
 }

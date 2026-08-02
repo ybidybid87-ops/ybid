@@ -1,5 +1,6 @@
 // api/companies/[companyId]/route.ts
 import { verifyCompanyPermission } from "@/lib/company-permission";
+import { parseKoreaDate } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
 import { findCompany } from "@/services/server/company";
 import { UpdateCompanyRequest } from "@/types/company";
@@ -122,7 +123,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         await tx.contact_schedules.create({
           data: {
             company_id: companyId,
-            scheduled_at: new Date(body.contactSchedule.scheduledAt),
+            scheduled_at: parseKoreaDate(body.contactSchedule.scheduledAt),
             memo: body.contactSchedule.memo,
             created_by: authUser.id,
           },
