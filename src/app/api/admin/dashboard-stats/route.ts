@@ -8,7 +8,7 @@ import prisma from "prisma/prisma";
 export async function GET() {
   const user = await getUser();
 
-  if (!user || user.role !== "admin") {
+  if (!user || !["admin", "leader"].includes(user.role)) {
     return NextResponse.json(
       {
         success: false,

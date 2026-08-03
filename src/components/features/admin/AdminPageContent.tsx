@@ -15,7 +15,7 @@ export default async function AdminPageContent() {
     <div className="space-y-10">
       <PageHeader title="관리자" description="팀원의 영업 현황을 확인합니다." />
 
-      {user.role === "admin" && <AdminDashboardStats />}
+      <AdminDashboardStats />
 
       <SalesPerformanceSection />
     </div>
