@@ -14,7 +14,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import useUser from "@/hooks/user/useUser";
 import Image from "next/image";
@@ -55,16 +54,10 @@ export default function AppSidebar() {
   const { data: user } = useUser();
   const canAccessAdmin = user?.role === "leader" || user?.role === "admin";
   return (
-    <Sidebar variant="sidebar" collapsible="icon" className="font-semibold bg-white h-full">
-      <SidebarHeader className="flex flex-row items-center justify-between">
-        <div className="group-data-[state=collapsed]:hidden" />
-
-        <div className="py-2 group-data-[state=collapsed]:hidden">
+    <Sidebar variant="sidebar" className="font-semibold bg-white h-full">
+      <SidebarHeader>
+        <div className="flex justify-center py-2">
           <Image src="/images/ybid-logo.png" alt="YBID" width={80} height={24} priority />
-        </div>
-
-        <div className="flex w-full justify-center group-data-[state=expanded]:w-auto">
-          <SidebarTrigger />
         </div>
       </SidebarHeader>
 
@@ -92,7 +85,7 @@ export default function AppSidebar() {
             <SidebarSeparator />
 
             <SidebarGroup>
-              <div className="px-3 py-2 text-lg font-semibold text-muted-foreground group-data-[state=collapsed]:hidden">
+              <div className="px-3 py-2 text-lg font-semibold text-muted-foreground">
                 관리자 기능
               </div>
 
