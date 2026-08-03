@@ -11,11 +11,6 @@ export async function GET() {
   const end = addMonths(start, 1);
 
   const users = await prisma.users.findMany({
-    where: {
-      role: {
-        not: "admin",
-      },
-    },
     include: {
       companies_companies_owner_idTousers: {
         where: {
