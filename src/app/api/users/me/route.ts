@@ -1,3 +1,5 @@
+// api/users/me/route.ts
+
 import { getUser } from "@/services/actions/user/user.api";
 import { CACHE_TAGS } from "@/services/cache-tags";
 import { revalidateTag } from "next/cache";
@@ -28,6 +30,8 @@ export async function GET() {
       role: true,
       created_at: true,
       team_id: true,
+      is_active: true,
+      retired_at: true,
     },
   });
 
@@ -68,6 +72,8 @@ export async function PATCH(request: NextRequest) {
       role: true,
       team_id: true,
       created_at: true,
+      is_active: true,
+      retired_at: true,
     },
   });
 
