@@ -68,6 +68,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       prisma.users.findUnique({
         where: {
           id: body.ownerId,
+          is_active: true,
         },
         select: {
           id: true,
@@ -102,7 +103,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     if (!newOwner) {
       return NextResponse.json(
         {
-          message: "변경할 담당자를 찾을 수 없습니다.",
+          message: "변경할 수 있는 담당자를 찾을 수 없습니다.",
         },
         {
           status: 404,

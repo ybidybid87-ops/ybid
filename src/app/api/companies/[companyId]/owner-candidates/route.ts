@@ -100,6 +100,7 @@ export async function GET(_: NextRequest, { params }: RouteContext) {
 
     const users = await prisma.users.findMany({
       where: {
+        is_active: true,
         id: {
           not: company.owner_id,
         },

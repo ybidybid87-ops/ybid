@@ -1,3 +1,4 @@
+// api/users/logout/route.ts
 import { logout } from "@/services/actions/user/user.api";
 import { NextResponse } from "next/server";
 
