@@ -108,9 +108,11 @@ export default function AppSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter>
-        <MonthlySalesRankingCard />
-      </SidebarFooter>
+      {user && (
+        <SidebarFooter>
+          <MonthlySalesRankingCard />
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }
