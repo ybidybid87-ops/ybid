@@ -1,3 +1,5 @@
+// src/services/actions/user/user.api.ts
+
 import { createClient } from "@/lib/supabase/server";
 import { cacheTag, revalidateTag } from "next/cache";
 import prisma from "prisma/prisma";
@@ -15,7 +17,15 @@ async function getCachedUser(userId: string) {
   cacheTag(CACHE_TAGS.ME);
   const user = await prisma.users.findUnique({
     where: { id: userId },
-    select: { id: true, name: true, email: true, role: true, team_id: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      team_id: true,
+      is_active: true,
+      retired_at: true,
+    },
   });
   return user ?? null;
 }

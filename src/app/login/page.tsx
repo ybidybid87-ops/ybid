@@ -1,11 +1,27 @@
 import LoginBrand from "@/components/login/LoginBrand";
 import LoginCard from "@/components/login/LoginCard";
+import { Suspense } from "react";
 
-export default function LoginPage() {
+type Props = {
+  searchParams: Promise<{
+    error?: string;
+  }>;
+};
+
+export default function LoginPage({ searchParams }: Props) {
   return (
-    <div className="flex gap-40 justify-center h-screen items-center">
+    <div className="flex h-screen items-center justify-center gap-40">
       <LoginBrand />
-      <LoginCard />
+
+      <Suspense fallback={<LoginCard />}>
+        <LoginContent searchParams={searchParams} />
+      </Suspense>
     </div>
   );
+}
+
+async function LoginContent({ searchParams }: Props) {
+  const { error } = await searchParams;
+
+  return <LoginCard error={error} />;
 }

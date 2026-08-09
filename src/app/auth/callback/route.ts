@@ -1,30 +1,61 @@
+// src/app/auth/callback/route.ts
+
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "prisma/prisma";
 import { upsertGoogleUser } from "./auth";
 
 /* OAuth 로그인 후 리디렉션된 사용자를 처리하는 서버 핸들러 */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code"); // Supabase가 넘긴 인증 코드
-  const next = searchParams.get("next") ?? "/"; // 로그인 후 이동할 경로
+  const code = searchParams.get("code");
+  const next = searchParams.get("next") ?? "/";
+
   if (code) {
     const supabase = await createClient();
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      /* 최초 로그인 시만 유저 정보를 user 스키마에 저장 (중복 생성 방지) */
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+
+      if (!authUser) {
+        return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+      }
+
+      const existingUser = await prisma.users.findUnique({
+        where: {
+          id: authUser.id,
+        },
+        select: {
+          is_active: true,
+        },
+      });
+
+      // 기존에 등록된 퇴사 계정이면 로그인 차단
+      if (existingUser && !existingUser.is_active) {
+        await supabase.auth.signOut();
+
+        return NextResponse.redirect(`${origin}/login?error=inactive-account`);
+      }
+
+      // 신규 사용자 또는 기존 활성 사용자 정보 동기화
       await upsertGoogleUser(supabase);
-      /* 로그인 성공 → 환경에 따라 적절한 리디렉션 처리 */
+
       const forwardedHost = request.headers.get("x-forwarded-host");
       const isLocalEnv = process.env.NODE_ENV === "development";
+
       if (isLocalEnv) {
         return NextResponse.redirect(`${origin}${next}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      } else {
-        return NextResponse.redirect(`${origin}${next}`);
       }
+
+      if (forwardedHost) {
+        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+      }
+
+      return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
