@@ -2,17 +2,16 @@ import { users } from "@/generated/prisma/client";
 import { canEditCompany } from "@/lib/utils";
 import prisma from "prisma/prisma";
 
-/* 직원(member)
-→ 본인 업체만 수정
+/* 
+업체 수정 권한
+member → 본인 담당 업체만 수정 가능
+leader/admin → 모든 업체 수정 가능
+*/
 
-팀장(leader)
-→ 팀원 업체 수정 가능
-→ 대표 업체 수정 불가
-
-대표(admin)
-→ 전부 수정 가능 */
-
-export async function verifyCompanyPermission(companyId: string, currentUser: Pick<users, "id" | "team_id" | "role">) {
+export async function verifyCompanyPermission(
+  companyId: string,
+  currentUser: Pick<users, "id" | "role">,
+) {
   const company = await prisma.companies.findUnique({
     where: {
       id: companyId,
