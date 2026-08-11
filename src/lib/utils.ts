@@ -76,7 +76,10 @@ export function canManageTopSales(role: UserRole) {
   return role === "admin" || role === "leader";
 }
 
-/* 업체 수정 권한 */
+/* 업체 관리 권한
+member → 본인 담당 업체만 수정/삭제/계약 처리 가능
+leader/admin → 모든 업체 수정/삭제/계약 처리 가능
+*/
 export function canEditCompany(
   currentUser: Pick<users, "id" | "role">,
   ownerUser: Pick<users, "id">,

@@ -73,15 +73,13 @@ export default function CompanyHeader({ company }: Props) {
                 </Button>
 
                 <ArchiveCompanyButton companyId={company.id} />
-              </>
-            ) : null}
 
-            {isOwner ? (
-              <ToggleContractButton
-                companyId={company.id}
-                salesStatus={company.sales_status}
-                className="h-12 rounded-2xl px-6"
-              />
+                <ToggleContractButton
+                  companyId={company.id}
+                  salesStatus={company.sales_status}
+                  className="h-12 rounded-2xl px-6"
+                />
+              </>
             ) : null}
           </div>
         </div>
