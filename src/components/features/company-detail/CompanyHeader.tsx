@@ -23,6 +23,8 @@ export default function CompanyHeader({ company }: Props) {
 
   const isOwner = me?.id === company.owner_id;
 
+  const canManageCompany = isOwner || me?.role === "admin" || me?.role === "leader";
+
   const canChangeOwner =
     me?.role === "admin" || (me?.role === "leader" && me.team_id === company.team_id);
 
@@ -61,7 +63,7 @@ export default function CompanyHeader({ company }: Props) {
               />
             ) : null}
 
-            {isOwner ? (
+            {canManageCompany ? (
               <>
                 <Button asChild variant="outline" className="h-12 rounded-2xl px-6">
                   <Link href={`/companies/${company.id}/edit`}>
@@ -71,13 +73,15 @@ export default function CompanyHeader({ company }: Props) {
                 </Button>
 
                 <ArchiveCompanyButton companyId={company.id} />
-
-                <ToggleContractButton
-                  companyId={company.id}
-                  salesStatus={company.sales_status}
-                  className="h-12 rounded-2xl px-6"
-                />
               </>
+            ) : null}
+
+            {isOwner ? (
+              <ToggleContractButton
+                companyId={company.id}
+                salesStatus={company.sales_status}
+                className="h-12 rounded-2xl px-6"
+              />
             ) : null}
           </div>
         </div>
