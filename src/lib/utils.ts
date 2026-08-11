@@ -76,21 +76,16 @@ export function canManageTopSales(role: UserRole) {
   return role === "admin" || role === "leader";
 }
 
-/* 업체 수정 권한 */
+/* 업체 관리 권한
+member → 본인 담당 업체만 수정/삭제/계약 처리 가능
+leader/admin → 모든 업체 수정/삭제/계약 처리 가능
+*/
 export function canEditCompany(
-  currentUser: Pick<users, "id" | "team_id" | "role">,
-  ownerUser: users,
+  currentUser: Pick<users, "id" | "role">,
+  ownerUser: Pick<users, "id">,
 ) {
-  if (currentUser.role === "admin") {
+  if (currentUser.role === "admin" || currentUser.role === "leader") {
     return true;
-  }
-
-  if (currentUser.role === "leader") {
-    if (ownerUser.role === "admin") {
-      return false;
-    }
-
-    return currentUser.team_id === ownerUser.team_id;
   }
 
   return currentUser.id === ownerUser.id;
