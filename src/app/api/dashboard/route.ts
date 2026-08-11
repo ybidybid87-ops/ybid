@@ -40,19 +40,9 @@ export async function GET(request: NextRequest) {
 
   const { startDate: monthStart, endDate: monthEnd } = getMonthRange();
 
-  let companyWhere = {};
-
-  if (user.role === "member") {
-    companyWhere = {
-      owner_id: user.id,
-    };
-  }
-
-  if (user.role === "leader") {
-    companyWhere = {
-      team_id: user.team_id,
-    };
-  }
+  const companyWhere = {
+    owner_id: user.id,
+  };
 
   const [
     myCompanyCount,
