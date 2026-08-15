@@ -8,14 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { AdminSalesPerformanceItem } from "@/types/admin-sales-performance";
 import { Trophy } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
   items: AdminSalesPerformanceItem[];
-  isPending: boolean;
+  isLoading?: boolean;
 };
 
 function getRankContent(rank: number) {
@@ -30,28 +29,44 @@ function getRankContent(rank: number) {
   return rank;
 }
 
-export default function SalesPerformanceTable({ items, isPending }: Props) {
-  if (isPending) {
-    return <Loading />;
-  }
-
+export default function SalesPerformanceTable({ items, isLoading = false }: Props) {
   return (
-    <Card className="overflow-hidden p-0">
+    <Card className="relative overflow-hidden p-0">
+      {isLoading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/70">
+          <Loading />
+        </div>
+      )}
+
       <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-24 text-center">순위</TableHead>
+              <TableHead rowSpan={2} className="w-24 text-center align-middle">
+                순위
+              </TableHead>
 
-              <TableHead>이름</TableHead>
+              <TableHead rowSpan={2} className="align-middle">
+                이름
+              </TableHead>
 
-              <TableHead className="text-center">내 업체 수</TableHead>
+              <TableHead colSpan={2} className="border-l text-center font-semibold">
+                현재 담당 현황
+              </TableHead>
 
-              <TableHead className="text-center">담당자 연락처 수</TableHead>
+              <TableHead colSpan={2} className="border-l text-center font-semibold">
+                선택 기간 실적
+              </TableHead>
+            </TableRow>
 
-              <TableHead className="text-center">콜 수</TableHead>
+            <TableRow>
+              <TableHead className="border-l text-center">담당 업체</TableHead>
 
-              <TableHead className="text-center">계약 건수</TableHead>
+              <TableHead className="text-center">담당자 연락처</TableHead>
+
+              <TableHead className="border-l text-center">콜</TableHead>
+
+              <TableHead className="text-center">계약</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -78,11 +93,11 @@ export default function SalesPerformanceTable({ items, isPending }: Props) {
                     </Link>
                   </TableCell>
 
-                  <TableCell className="text-center">{item.companyCount}개</TableCell>
+                  <TableCell className="border-l text-center">{item.companyCount}개</TableCell>
 
                   <TableCell className="text-center">{item.contactCount}개</TableCell>
 
-                  <TableCell className="text-center">{item.callCount}건</TableCell>
+                  <TableCell className="border-l text-center">{item.callCount}건</TableCell>
 
                   <TableCell className="text-center font-semibold">
                     {item.contractCount}건
