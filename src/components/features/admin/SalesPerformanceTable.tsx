@@ -22,7 +22,7 @@ function getRankContent(rank: number) {
   if (rank === 1) {
     return (
       <div className="flex items-center justify-center gap-2 font-bold">
-        <Trophy className="h-5 w-5 text-yellow-500" />1
+        <Trophy className="h-5 w-5 text-yellow-500" />
       </div>
     );
   }
