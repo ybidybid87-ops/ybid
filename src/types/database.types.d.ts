@@ -23,6 +23,7 @@ export type Database = {
           ceo_phone: string | null
           contract_duration_days: number | null
           contract_memo: string | null
+          contract_owner_id: string | null
           contracted_at: string | null
           created_at: string
           fax_number: string | null
@@ -45,6 +46,7 @@ export type Database = {
           ceo_phone?: string | null
           contract_duration_days?: number | null
           contract_memo?: string | null
+          contract_owner_id?: string | null
           contracted_at?: string | null
           created_at?: string
           fax_number?: string | null
@@ -67,6 +69,7 @@ export type Database = {
           ceo_phone?: string | null
           contract_duration_days?: number | null
           contract_memo?: string | null
+          contract_owner_id?: string | null
           contracted_at?: string | null
           created_at?: string
           fax_number?: string | null
@@ -85,6 +88,13 @@ export type Database = {
           {
             foreignKeyName: "companies_archived_by_fkey"
             columns: ["archived_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companies_contract_owner_id_fkey"
+            columns: ["contract_owner_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -379,7 +389,9 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          is_active: boolean
           name: string
+          retired_at: string | null
           role: string
           team_id: string | null
         }
@@ -387,7 +399,9 @@ export type Database = {
           created_at?: string
           email: string
           id: string
+          is_active?: boolean
           name: string
+          retired_at?: string | null
           role?: string
           team_id?: string | null
         }
@@ -395,7 +409,9 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          is_active?: boolean
           name?: string
+          retired_at?: string | null
           role?: string
           team_id?: string | null
         }

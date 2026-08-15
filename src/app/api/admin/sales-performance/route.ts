@@ -114,10 +114,15 @@ export async function GET(request: NextRequest) {
 
       // 선택한 월에 계약되었으며 현재도 유지 중인 계약 수
       prisma.companies.groupBy({
-        by: ["owner_id"],
+        by: ["contract_owner_id"],
         where: {
           is_archived: false,
           sales_status: "contracted",
+
+          contract_owner_id: {
+            not: null,
+          },
+
           contracted_at: {
             gte: startDate,
             lt: endDate,
@@ -136,7 +141,9 @@ export async function GET(request: NextRequest) {
     );
 
     const contractCountMap = new Map(
-      contractGroups.map((group) => [group.owner_id, group._count._all]),
+      contractGroups.flatMap((group) =>
+        group.contract_owner_id ? [[group.contract_owner_id, group._count._all] as const] : [],
+      ),
     );
 
     const items = salesUsers

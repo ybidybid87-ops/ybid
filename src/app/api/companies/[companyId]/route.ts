@@ -157,6 +157,35 @@ export async function DELETE(_: NextRequest, context: RouteContext) {
 
   await verifyCompanyPermission(companyId, authUser);
 
+  const company = await prisma.companies.findUnique({
+    where: {
+      id: companyId,
+    },
+    select: {
+      sales_status: true,
+    },
+  });
+
+  if (!company) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "업체를 찾을 수 없습니다.",
+      },
+      { status: 404 },
+    );
+  }
+
+  if (company.sales_status === "contracted") {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "계약 완료된 업체는 삭제할 수 없습니다. 계약을 취소한 후 삭제해주세요.",
+      },
+      { status: 400 },
+    );
+  }
+
   await prisma.companies.delete({
     where: {
       id: companyId,
