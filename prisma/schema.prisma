@@ -502,39 +502,42 @@ model webauthn_credentials {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model companies {
-  id                                 String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at                         DateTime                    @default(now()) @db.Timestamptz(6)
-  name                               String
-  ceo_name                           String?
-  region                             String?
-  sales_status                       String                      @default("new")
-  memo                               String?
-  owner_id                           String                      @db.Uuid
-  team_id                            String?                     @db.Uuid
-  contracted_at                      DateTime?                   @db.Timestamptz(6)
-  contract_memo                      String?
-  contract_duration_days             Int?
-  updated_at                         DateTime?                   @default(now()) @db.Timestamptz(6)
-  is_archived                        Boolean                     @default(false)
-  archived_at                        DateTime?                   @db.Timestamptz(6)
-  archived_by                        String?                     @db.Uuid
-  archive_reason                     String?
-  ceo_phone                          String?
-  interest_level                     InterestLevel               @default(medium)
-  fax_number                         String?
-  users_companies_archived_byTousers users?                      @relation("companies_archived_byTousers", fields: [archived_by], references: [id])
-  users_companies_owner_idTousers    users                       @relation("companies_owner_idTousers", fields: [owner_id], references: [id])
-  teams                              teams?                      @relation(fields: [team_id], references: [id])
-  business_licenses                  company_business_licenses[]
-  company_contacts                   company_contacts[]
-  contact_histories                  contact_histories[]
-  contact_schedules                  contact_schedules[]
-  notifications                      notifications[]
+  id                                       String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                               DateTime                    @default(now()) @db.Timestamptz(6)
+  name                                     String
+  ceo_name                                 String?
+  region                                   String?
+  sales_status                             String                      @default("new")
+  memo                                     String?
+  owner_id                                 String                      @db.Uuid
+  team_id                                  String?                     @db.Uuid
+  contracted_at                            DateTime?                   @db.Timestamptz(6)
+  contract_memo                            String?
+  contract_duration_days                   Int?
+  updated_at                               DateTime?                   @default(now()) @db.Timestamptz(6)
+  is_archived                              Boolean                     @default(false)
+  archived_at                              DateTime?                   @db.Timestamptz(6)
+  archived_by                              String?                     @db.Uuid
+  archive_reason                           String?
+  ceo_phone                                String?
+  interest_level                           InterestLevel               @default(medium)
+  fax_number                               String?
+  contract_owner_id                        String?                     @db.Uuid
+  users_companies_contract_owner_idTousers users?                      @relation("companies_contract_owner_idTousers", fields: [contract_owner_id], references: [id])
+  users_companies_archived_byTousers       users?                      @relation("companies_archived_byTousers", fields: [archived_by], references: [id])
+  users_companies_owner_idTousers          users                       @relation("companies_owner_idTousers", fields: [owner_id], references: [id])
+  teams                                    teams?                      @relation(fields: [team_id], references: [id])
+  business_licenses                        company_business_licenses[]
+  company_contacts                         company_contacts[]
+  contact_histories                        contact_histories[]
+  contact_schedules                        contact_schedules[]
+  notifications                            notifications[]
 
   @@index([owner_id])
   @@index([team_id])
   @@index([sales_status])
   @@index([interest_level])
+  @@index([contract_owner_id])
   @@schema("public")
 }
 
@@ -646,21 +649,24 @@ model teams {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model users {
-  id                                     String               @id @db.Uuid
-  created_at                             DateTime             @default(now()) @db.Timestamptz(6)
-  name                                   String
-  email                                  String
-  role                                   String               @default("member")
-  team_id                                String?              @default(dbgenerated("'55474ed3-f105-4960-9fcf-58daeea8c61e'::uuid")) @db.Uuid
-  companies_companies_archived_byTousers companies[]          @relation("companies_archived_byTousers")
-  companies_companies_owner_idTousers    companies[]          @relation("companies_owner_idTousers")
-  contact_histories                      contact_histories[]
-  completed_contact_schedules            contact_schedules[]  @relation("contact_schedules_completed_by")
-  created_contact_schedules              contact_schedules[]  @relation("contact_schedules_created_by")
-  notification_reads                     notification_reads[]
-  notifications                          notifications[]
-  users                                  auth_users           @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  teams                                  teams?               @relation(fields: [team_id], references: [id])
+  id                                           String               @id @db.Uuid
+  created_at                                   DateTime             @default(now()) @db.Timestamptz(6)
+  name                                         String
+  email                                        String
+  role                                         String               @default("member")
+  team_id                                      String?              @default(dbgenerated("'55474ed3-f105-4960-9fcf-58daeea8c61e'::uuid")) @db.Uuid
+  is_active                                    Boolean              @default(true)
+  retired_at                                   DateTime?            @db.Timestamptz(6)
+  companies_companies_archived_byTousers       companies[]          @relation("companies_archived_byTousers")
+  companies_companies_owner_idTousers          companies[]          @relation("companies_owner_idTousers")
+  contact_histories                            contact_histories[]
+  completed_contact_schedules                  contact_schedules[]  @relation("contact_schedules_completed_by")
+  created_contact_schedules                    contact_schedules[]  @relation("contact_schedules_created_by")
+  notification_reads                           notification_reads[]
+  notifications                                notifications[]
+  users                                        auth_users           @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams                                        teams?               @relation(fields: [team_id], references: [id])
+  companies_companies_contract_owner_idTousers companies[]          @relation("companies_contract_owner_idTousers")
 
   @@schema("public")
 }
