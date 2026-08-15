@@ -1,3 +1,5 @@
+// src/types/admin-sales-performance.d.ts
+
 export type AdminSalesPerformanceItem = {
   rank: number;
   userId: string;
@@ -7,13 +9,13 @@ export type AdminSalesPerformanceItem = {
   companyCount: number;
   contactCount: number;
 
-  // 선택한 월의 실적
+  // 선택한 기간의 실적
   callCount: number;
   contractCount: number;
 };
 
 export type AdminSalesPerformanceResponse = {
-  year: number;
-  month: number;
+  startDate: string;
+  endDate: string;
   items: AdminSalesPerformanceItem[];
 };
