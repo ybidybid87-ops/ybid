@@ -66,8 +66,8 @@ export const notificationKeys = {
 export const adminKeys = {
   all: ["admin"] as const,
 
-  salesPerformance: (year: number, month: number) =>
-    [...adminKeys.all, "sales-performance", year, month] as const,
+  salesPerformance: (startDate: string, endDate: string) =>
+    [...adminKeys.all, "sales-performance", startDate, endDate] as const,
 
   dashboardStats: () => [...adminKeys.all, "dashboard-stats"] as const,
 };

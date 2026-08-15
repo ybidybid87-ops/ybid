@@ -1,3 +1,5 @@
+// src/lib/date.ts
+
 //한국 시간 기준으로 조회하기 위한 함수들
 
 const KOREA_TIME_OFFSET = "+09:00";
