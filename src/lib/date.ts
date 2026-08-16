@@ -132,3 +132,27 @@ export function getNextKoreaDateTime(date: string) {
 
   return parsed;
 }
+
+// 어제 문자열 함수
+export function getYesterdayDateString() {
+  const now = new Date();
+
+  now.setDate(now.getDate() - 1);
+
+  return formatLocalDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+}
+
+export function getFullThisMonthDateRange(): DateRange {
+  const now = new Date();
+
+  const lastDayOfThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  return {
+    startDate: formatLocalDate(now.getFullYear(), now.getMonth() + 1, 1),
+    endDate: formatLocalDate(
+      lastDayOfThisMonth.getFullYear(),
+      lastDayOfThisMonth.getMonth() + 1,
+      lastDayOfThisMonth.getDate(),
+    ),
+  };
+}

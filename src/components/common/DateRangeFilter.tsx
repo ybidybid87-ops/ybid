@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   DateRange,
+  getFullThisMonthDateRange,
   getLastMonthDateRange,
   getThisMonthDateRange,
   getTodayDateString,
@@ -15,6 +16,7 @@ type Props = {
   isLoading?: boolean;
   title?: string;
   description?: string;
+  maxDate?: string | null;
 };
 
 export default function DateRangeFilter({
@@ -23,11 +25,10 @@ export default function DateRangeFilter({
   isLoading = false,
   title = "조회 기간",
   description,
+  maxDate = getTodayDateString(),
 }: Props) {
-  // 날짜 입력창에서 변경 중인 값
   const [dateRange, setDateRange] = useState<DateRange>(value);
 
-  // 외부에서 실제 조회 기간이 변경되면 입력창도 동일한 값으로 맞춤
   useEffect(() => {
     setDateRange(value);
   }, [value]);
@@ -37,12 +38,42 @@ export default function DateRangeFilter({
     onSearch(range);
   };
 
+  const getRangeWithinMaxDate = (range: DateRange): DateRange | null => {
+    if (!maxDate) {
+      return range;
+    }
+
+    // 기간 전체가 조회 가능한 최대 날짜보다 미래라면 적용하지 않음
+    if (range.startDate > maxDate) {
+      return null;
+    }
+
+    return {
+      startDate: range.startDate,
+      endDate: range.endDate > maxDate ? maxDate : range.endDate,
+    };
+  };
+
   const handleThisMonth = () => {
-    applyRange(getThisMonthDateRange());
+    const thisMonthRange = maxDate === null ? getFullThisMonthDateRange() : getThisMonthDateRange();
+
+    const range = getRangeWithinMaxDate(thisMonthRange);
+
+    if (!range) {
+      return;
+    }
+
+    applyRange(range);
   };
 
   const handleLastMonth = () => {
-    applyRange(getLastMonthDateRange());
+    const range = getRangeWithinMaxDate(getLastMonthDateRange());
+
+    if (!range) {
+      return;
+    }
+
+    applyRange(range);
   };
 
   const handleSearch = () => {
@@ -82,7 +113,15 @@ export default function DateRangeFilter({
             <input
               type="date"
               value={dateRange.startDate}
-              max={dateRange.endDate}
+              max={
+                dateRange.endDate
+                  ? maxDate
+                    ? dateRange.endDate < maxDate
+                      ? dateRange.endDate
+                      : maxDate
+                    : dateRange.endDate
+                  : (maxDate ?? undefined)
+              }
               disabled={isLoading}
               onChange={(event) =>
                 setDateRange((prev) => ({
@@ -99,7 +138,7 @@ export default function DateRangeFilter({
               type="date"
               value={dateRange.endDate}
               min={dateRange.startDate}
-              max={getTodayDateString()}
+              max={maxDate ?? undefined}
               disabled={isLoading}
               onChange={(event) =>
                 setDateRange((prev) => ({

@@ -56,13 +56,25 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const requiresDateRange = ["contact-schedules", "overdue-contacts", "contracts"].includes(type);
+  const requiresDateRange = ["contact-schedules", "contracts"].includes(type);
 
   if (requiresDateRange && (!startDate || !endDate)) {
     return NextResponse.json(
       {
         success: false,
         message: "조회 시작일과 종료일은 필수입니다.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  if ((startDate && !endDate) || (!startDate && endDate)) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "조회 시작일과 종료일을 모두 입력해주세요.",
       },
       {
         status: 400,
@@ -322,18 +334,23 @@ export async function GET(request: NextRequest) {
   }
 
   if (type === "overdue-contacts") {
-    const start = parseKoreaDate(startDate!);
-    const end = parseKoreaDate(endDate!);
     const today = getToday();
+
+    const scheduledAtWhere =
+      startDate && endDate
+        ? {
+            gte: parseKoreaDate(startDate),
+            lte: parseKoreaDate(endDate),
+            lt: today,
+          }
+        : {
+            lt: today,
+          };
 
     const where = {
       completed: false,
 
-      scheduled_at: {
-        gte: start,
-        lte: end,
-        lt: today,
-      },
+      scheduled_at: scheduledAtWhere,
 
       companies: companyWhere,
     };
