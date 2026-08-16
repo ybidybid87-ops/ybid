@@ -13,7 +13,6 @@ export function getKoreaNow() {
   );
 }
 
-//오늘 날짜(@db.Date) 비교용
 // 오늘 날짜(@db.Date) 비교용
 export function getToday() {
   const now = getKoreaNow();
@@ -118,4 +117,18 @@ export function getLastMonthDateRange(): DateRange {
       lastDayOfLastMonth.getDate(),
     ),
   };
+}
+
+// YYYY-MM-DD 문자열을 한국 시간 기준 하루 시작 시각으로 변환
+export function parseKoreaDateTime(date: string) {
+  return new Date(`${date}T00:00:00${KOREA_TIME_OFFSET}`);
+}
+
+// endDate를 포함한 조회에서 사용할 다음 날 00:00
+export function getNextKoreaDateTime(date: string) {
+  const parsed = parseKoreaDateTime(date);
+
+  parsed.setDate(parsed.getDate() + 1);
+
+  return parsed;
 }

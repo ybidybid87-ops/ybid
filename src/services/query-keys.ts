@@ -1,3 +1,5 @@
+import { DashboardDetailParams } from "@/types/dashboard";
+
 export const userKeys = {
   all: ["user"] as const,
 
@@ -47,6 +49,10 @@ export const dashboardKeys = {
 
   summary: (params: { userId: string; page: number; pageSize: number }) =>
     [...dashboardKeys.all, "summary", params] as const,
+
+  details: () => [...dashboardKeys.all, "details"] as const,
+
+  detail: (params: DashboardDetailParams) => [...dashboardKeys.details(), params] as const,
 };
 
 export const monthlySalesRankingKeys = {
