@@ -4,16 +4,18 @@ import Loading from "@/components/common/Loading";
 import { Card, CardContent } from "@/components/ui/card";
 import { INTEREST_LEVEL_LABELS } from "@/constants/businessData";
 import { getKoreaDateKey } from "@/lib/date";
-import { DashboardDetailItem, DashboardDetailType } from "@/types/dashboard";
+import { DashboardDetailItem, DashboardDetailScope, DashboardDetailType } from "@/types/dashboard";
 import Link from "next/link";
 
 type Props = {
   items: DashboardDetailItem[];
   type: DashboardDetailType;
+  scope?: DashboardDetailScope;
   isLoading?: boolean;
 };
 
-export default function DashboardDetailTable({ items, type, isLoading = false }: Props) {
+export default function DashboardDetailTable({ items, type, scope, isLoading = false }: Props) {
+  const showOwner = scope === "all";
   if (isLoading && items.length === 0) {
     return <Loading />;
   }
@@ -38,8 +40,13 @@ export default function DashboardDetailTable({ items, type, isLoading = false }:
         <thead className="bg-muted/50">
           <tr className="border-b">
             <th className="px-4 py-3 text-left font-medium">업체명</th>
+
+            {showOwner && <th className="px-4 py-3 text-left font-medium">담당 직원</th>}
+
             <th className="px-4 py-3 text-left font-medium">관심도</th>
-            <th className="px-4 py-3 text-left font-medium">담당자</th>
+
+            <th className="px-4 py-3 text-left font-medium">업체 담당자</th>
+
             <th className="px-4 py-3 text-left font-medium">연락처</th>
 
             {showScheduledAt && <th className="px-4 py-3 text-left font-medium">연락 예정일</th>}
@@ -59,6 +66,8 @@ export default function DashboardDetailTable({ items, type, isLoading = false }:
                   {item.companyName}
                 </Link>
               </td>
+
+              {showOwner && <td className="px-4 py-3">{item.owner.name}</td>}
 
               <td className="px-4 py-3">{INTEREST_LEVEL_LABELS[item.interestLevel]}</td>
 

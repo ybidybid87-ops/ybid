@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const scope = request.nextUrl.searchParams.get("scope") ?? "me";
   const type = request.nextUrl.searchParams.get("type") as DashboardDetailType | null;
 
   const startDate = request.nextUrl.searchParams.get("startDate");
@@ -52,6 +53,30 @@ export async function GET(request: NextRequest) {
       },
       {
         status: 400,
+      },
+    );
+  }
+
+  if (scope !== "me" && scope !== "all") {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "올바른 조회 범위가 아닙니다.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  if (scope === "all" && !["admin", "leader"].includes(user.role)) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "전체 데이터를 조회할 권한이 없습니다.",
+      },
+      {
+        status: 403,
       },
     );
   }
@@ -96,15 +121,27 @@ export async function GET(request: NextRequest) {
 
   const skip = (page - 1) * pageSize;
 
-  const companyWhere = {
-    owner_id: user.id,
-    is_archived: false,
-  };
+  const companyWhere =
+    scope === "all"
+      ? {
+          is_archived: false,
+        }
+      : {
+          owner_id: user.id,
+          is_archived: false,
+        };
 
   const companySelect = {
     id: true,
     name: true,
     interest_level: true,
+
+    users_companies_owner_idTousers: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
 
     company_contacts: {
       where: {
@@ -153,6 +190,7 @@ export async function GET(request: NextRequest) {
           companyId: company.id,
           companyName: company.name,
           interestLevel: company.interest_level,
+          owner: company.users_companies_owner_idTousers,
           primaryContact: company.company_contacts[0] ?? null,
         })),
 
@@ -199,6 +237,7 @@ export async function GET(request: NextRequest) {
           companyId: company.id,
           companyName: company.name,
           interestLevel: company.interest_level,
+          owner: company.users_companies_owner_idTousers,
           primaryContact: company.company_contacts[0] ?? null,
         })),
 
@@ -253,6 +292,7 @@ export async function GET(request: NextRequest) {
           companyId: company.id,
           companyName: company.name,
           interestLevel: company.interest_level,
+          owner: company.users_companies_owner_idTousers,
           primaryContact: company.company_contacts[0] ?? null,
           contractedAt: company.contracted_at,
         })),
@@ -321,6 +361,7 @@ export async function GET(request: NextRequest) {
           companyId: schedule.companies.id,
           companyName: schedule.companies.name,
           interestLevel: schedule.companies.interest_level,
+          owner: schedule.companies.users_companies_owner_idTousers,
           primaryContact: schedule.companies.company_contacts[0] ?? null,
           scheduledAt: schedule.scheduled_at,
         })),
@@ -396,6 +437,7 @@ export async function GET(request: NextRequest) {
           companyId: schedule.companies.id,
           companyName: schedule.companies.name,
           interestLevel: schedule.companies.interest_level,
+          owner: schedule.companies.users_companies_owner_idTousers,
           primaryContact: schedule.companies.company_contacts[0] ?? null,
           scheduledAt: schedule.scheduled_at,
         })),

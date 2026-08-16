@@ -46,6 +46,8 @@ export type DashboardResponse = {
 | `interest-low`     | 현재 관심도 `low` 업체    | X     |
  */
 
+export type DashboardDetailScope = "me" | "all";
+
 export type DashboardDetailType =
   | "companies"
   | "contact-schedules"
@@ -57,6 +59,7 @@ export type DashboardDetailType =
 
 export type DashboardDetailParams = {
   type: DashboardDetailType;
+  scope?: DashboardDetailScope;
   startDate?: string;
   endDate?: string;
   page: number;
@@ -67,6 +70,11 @@ export type DashboardDetailItem = {
   companyId: string;
   companyName: string;
   interestLevel: InterestLevel;
+
+  owner: {
+    id: string;
+    name: string;
+  };
 
   primaryContact: {
     id: string;

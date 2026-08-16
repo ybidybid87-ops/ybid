@@ -27,6 +27,7 @@ export async function getDashboard({
 
 export async function getDashboardDetails({
   type,
+  scope = "me",
   startDate,
   endDate,
   page,
@@ -34,6 +35,7 @@ export async function getDashboardDetails({
 }: DashboardDetailParams): Promise<DashboardDetailResponse> {
   const searchParams = new URLSearchParams({
     type,
+    scope,
     page: String(page),
     pageSize: String(pageSize),
   });

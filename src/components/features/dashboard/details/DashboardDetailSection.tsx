@@ -13,12 +13,13 @@ import {
   getTodayDateString,
   getYesterdayDateString,
 } from "@/lib/date";
-import { DashboardDetailType } from "@/types/dashboard";
+import { DashboardDetailScope, DashboardDetailType } from "@/types/dashboard";
 import { useEffect, useMemo, useRef, useState } from "react";
 import DashboardDetailTable from "./DashboardDetailTable";
 
 type Props = {
   type: DashboardDetailType;
+  scope?: DashboardDetailScope;
 };
 
 const DETAIL_INFO: Record<
@@ -81,7 +82,7 @@ function getInitialDateRange(type: DashboardDetailType): DateRange | null {
   return null;
 }
 
-export default function DashboardDetailSection({ type }: Props) {
+export default function DashboardDetailSection({ type, scope = "me" }: Props) {
   const [page, setPage] = useState(1);
 
   const [selectedRange, setSelectedRange] = useState<DateRange | null>(() =>
@@ -104,12 +105,13 @@ export default function DashboardDetailSection({ type }: Props) {
   const params = useMemo(
     () => ({
       type,
+      scope,
       startDate: selectedRange?.startDate,
       endDate: selectedRange?.endDate,
       page,
       pageSize: DEFAULT_PAGE_SIZE,
     }),
-    [type, selectedRange, page],
+    [type, scope, selectedRange, page],
   );
 
   const { data, isFetching } = useDashboardDetails(params);
@@ -210,7 +212,12 @@ export default function DashboardDetailSection({ type }: Props) {
         </div>
       )}
 
-      <DashboardDetailTable items={data?.items ?? []} type={type} isLoading={isFetching} />
+      <DashboardDetailTable
+        items={data?.items ?? []}
+        type={type}
+        scope={scope}
+        isLoading={isFetching}
+      />
 
       <AppPagination page={page} totalPages={data?.totalPages ?? 1} onPageChange={setPage} />
     </section>
