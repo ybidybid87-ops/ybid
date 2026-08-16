@@ -73,3 +73,49 @@ export function getKoreaDateKey(value: string | Date) {
 
   return `${year}-${month}-${day}`;
 }
+
+export type DateRange = {
+  startDate: string;
+  endDate: string;
+};
+
+export function formatLocalDate(year: number, month: number, day: number) {
+  return [year, String(month).padStart(2, "0"), String(day).padStart(2, "0")].join("-");
+}
+
+export function getTodayDateString() {
+  const now = new Date();
+
+  return formatLocalDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+}
+
+export function getThisMonthDateRange(): DateRange {
+  const now = new Date();
+
+  return {
+    startDate: formatLocalDate(now.getFullYear(), now.getMonth() + 1, 1),
+    endDate: getTodayDateString(),
+  };
+}
+
+export function getLastMonthDateRange(): DateRange {
+  const now = new Date();
+
+  const firstDayOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastDayOfLastMonth = new Date(firstDayOfThisMonth);
+
+  lastDayOfLastMonth.setDate(0);
+
+  return {
+    startDate: formatLocalDate(
+      lastDayOfLastMonth.getFullYear(),
+      lastDayOfLastMonth.getMonth() + 1,
+      1,
+    ),
+    endDate: formatLocalDate(
+      lastDayOfLastMonth.getFullYear(),
+      lastDayOfLastMonth.getMonth() + 1,
+      lastDayOfLastMonth.getDate(),
+    ),
+  };
+}

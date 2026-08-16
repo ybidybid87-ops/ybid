@@ -1,99 +1,32 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import DateRangeFilter from "@/components/common/DateRangeFilter";
 import useAdminSalesPerformance from "@/hooks/admin/useAdminSalesPerformance";
+import { DateRange, getThisMonthDateRange } from "@/lib/date";
 import { useState } from "react";
 import SalesPerformanceTable from "./SalesPerformanceTable";
 
-function formatDate(year: number, month: number, day: number) {
-  return [year, String(month).padStart(2, "0"), String(day).padStart(2, "0")].join("-");
-}
-
-function getTodayDate() {
-  const now = new Date();
-
-  return formatDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
-}
-
-function getThisMonthRange() {
-  const now = new Date();
-
-  return {
-    startDate: formatDate(now.getFullYear(), now.getMonth() + 1, 1),
-    endDate: getTodayDate(),
-  };
-}
-
-function getLastMonthRange() {
-  const now = new Date();
-
-  const firstDayOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-  const lastDayOfLastMonth = new Date(firstDayOfThisMonth);
-
-  lastDayOfLastMonth.setDate(0);
-
-  return {
-    startDate: formatDate(lastDayOfLastMonth.getFullYear(), lastDayOfLastMonth.getMonth() + 1, 1),
-    endDate: formatDate(
-      lastDayOfLastMonth.getFullYear(),
-      lastDayOfLastMonth.getMonth() + 1,
-      lastDayOfLastMonth.getDate(),
-    ),
-  };
-}
-
-type DateRange = {
-  startDate: string;
-  endDate: string;
-};
-
 export default function SalesPerformanceSection() {
-  const initialRange = getThisMonthRange();
-
-  // 날짜 입력창에서 변경 중인 값
-  const [dateRange, setDateRange] = useState<DateRange>(initialRange);
-
   // 실제 API 조회에 사용되는 기간
-  const [selectedRange, setSelectedRange] = useState<DateRange>(initialRange);
+  const [selectedRange, setSelectedRange] = useState<DateRange>(() => getThisMonthDateRange());
 
   const { data, isFetching, refetch } = useAdminSalesPerformance(
     selectedRange.startDate,
     selectedRange.endDate,
   );
 
-  const applyRange = (range: DateRange) => {
-    setDateRange(range);
-
+  const handleSearch = (range: DateRange) => {
     const isSameRange =
       range.startDate === selectedRange.startDate && range.endDate === selectedRange.endDate;
 
+    // 현재 조회 중인 기간과 같다면 Query Key가 바뀌지 않으므로 직접 재조회
     if (isSameRange) {
       refetch();
       return;
     }
 
+    // 기간이 변경되면 Query Key가 변경되면서 자동으로 새로운 데이터를 조회
     setSelectedRange(range);
-  };
-
-  const handleThisMonth = () => {
-    applyRange(getThisMonthRange());
-  };
-
-  const handleLastMonth = () => {
-    applyRange(getLastMonthRange());
-  };
-
-  const handleSearch = () => {
-    if (!dateRange.startDate || !dateRange.endDate) {
-      return;
-    }
-
-    if (dateRange.startDate > dateRange.endDate) {
-      return;
-    }
-
-    applyRange(dateRange);
   };
 
   return (
@@ -128,77 +61,15 @@ export default function SalesPerformanceSection() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-end justify-between gap-4 rounded-xl border bg-muted/20 p-4">
-        <div>
-          <p className="text-sm font-semibold">실적 조회 기간</p>
+      <DateRangeFilter
+        value={selectedRange}
+        onSearch={handleSearch}
+        isLoading={isFetching}
+        title="실적 조회 기간"
+        description="콜 수와 계약 건수에 적용되는 기간입니다."
+      />
 
-          <p className="mt-1 text-xs text-muted-foreground">
-            콜 수와 계약 건수에 적용되는 기간입니다.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-end gap-2">
-          <Button type="button" variant="outline" onClick={handleThisMonth} disabled={isFetching}>
-            이번 달
-          </Button>
-
-          <Button type="button" variant="outline" onClick={handleLastMonth} disabled={isFetching}>
-            지난 달
-          </Button>
-
-          <div className="ml-2 flex items-center gap-2">
-            <input
-              type="date"
-              value={dateRange.startDate}
-              max={dateRange.endDate}
-              disabled={isFetching}
-              onChange={(event) =>
-                setDateRange((prev) => ({
-                  ...prev,
-                  startDate: event.target.value,
-                }))
-              }
-              className="h-9 rounded-md border bg-background px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-            />
-
-            <span className="text-sm text-muted-foreground">~</span>
-
-            <input
-              type="date"
-              value={dateRange.endDate}
-              min={dateRange.startDate}
-              max={getTodayDate()}
-              disabled={isFetching}
-              onChange={(event) =>
-                setDateRange((prev) => ({
-                  ...prev,
-                  endDate: event.target.value,
-                }))
-              }
-              className="h-9 rounded-md border bg-background px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-            />
-
-            <Button
-              type="button"
-              onClick={handleSearch}
-              disabled={
-                isFetching ||
-                !dateRange.startDate ||
-                !dateRange.endDate ||
-                dateRange.startDate > dateRange.endDate
-              }
-            >
-              {isFetching ? "조회 중..." : "조회"}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">
-          {selectedRange.startDate} ~ {selectedRange.endDate}
-        </p>
-
+      <div className="flex items-center justify-end">
         <p className="text-xs text-muted-foreground">선택 기간 기준 순위</p>
       </div>
 
