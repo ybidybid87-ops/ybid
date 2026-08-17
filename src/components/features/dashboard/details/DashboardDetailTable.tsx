@@ -67,7 +67,16 @@ export default function DashboardDetailTable({ items, type, scope, isLoading = f
                 </Link>
               </td>
 
-              {showOwner && <td className="px-4 py-3">{item.owner.name}</td>}
+              {showOwner && (
+                <td className="px-4 py-3">
+                  <Link
+                    href={`/admin/users/${item.owner.id}/companies`}
+                    className="font-medium hover:underline"
+                  >
+                    {item.owner.name}
+                  </Link>
+                </td>
+              )}
 
               <td className="px-4 py-3">{INTEREST_LEVEL_LABELS[item.interestLevel]}</td>
 

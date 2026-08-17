@@ -118,6 +118,13 @@ export default function DashboardDetailSection({ type, scope = "me" }: Props) {
 
   const detailInfo = DETAIL_INFO[type];
 
+  const detailTitle = scope === "all" && type === "companies" ? "전체 담당 업체" : detailInfo.title;
+
+  const detailDescription =
+    scope === "all" && type === "companies"
+      ? "현재 전체 직원이 담당하고 있는 업체를 확인합니다."
+      : detailInfo.description;
+
   const hasDateFilter =
     type === "contact-schedules" || type === "overdue-contacts" || type === "contracts";
 
@@ -153,14 +160,14 @@ export default function DashboardDetailSection({ type, scope = "me" }: Props) {
     <section ref={sectionRef} className="scroll-mt-6 space-y-6">
       <div>
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-bold">{detailInfo.title}</h2>
+          <h2 className="text-2xl font-bold">{detailTitle}</h2>
 
           {!isFetching && (
             <span className="text-sm text-muted-foreground">총 {data?.totalCount ?? 0}개</span>
           )}
         </div>
 
-        <p className="mt-1 text-sm text-muted-foreground">{detailInfo.description}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{detailDescription}</p>
       </div>
 
       {hasDateFilter && selectedRange && (
