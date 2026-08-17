@@ -28,7 +28,7 @@ export default function TodayContactsSection({
   useScrollToTopOnPageChange(sectionRef, page);
 
   return (
-    <section ref={sectionRef} className="space-y-6">
+    <section ref={sectionRef} className="scroll-mt-6 space-y-6">
       <h2 className="text-h2 font-bold">오늘 연락해야 할 업체</h2>
 
       {isLoading ? (
