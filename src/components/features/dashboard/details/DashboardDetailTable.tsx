@@ -78,7 +78,7 @@ export default function DashboardDetailTable({ items, type, scope, isLoading = f
                 </td>
               )}
 
-              <td className="px-4 py-3">{INTEREST_LEVEL_LABELS[item.interestLevel]}</td>
+              <td className="px-4 py-3 pl-7">{INTEREST_LEVEL_LABELS[item.interestLevel]}</td>
 
               <td className="px-4 py-3">{item.primaryContact?.name ?? "-"}</td>
 
