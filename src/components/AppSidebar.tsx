@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, LayoutDashboard, Users } from "lucide-react";
+import { Building2, ChartNoAxesCombined, LayoutDashboard, Users } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -39,15 +39,15 @@ const salesMenus = [
 
 const adminMenus = [
   {
+    title: "전체 대시보드",
+    url: "/admin/dashboard",
+    icon: ChartNoAxesCombined,
+  },
+  {
     title: "팀원별 현황",
     url: "/admin",
     icon: Users,
   },
-  /* {
-    title: "1등 직원 관리",
-    url: "/top-employee",
-    icon: Trophy,
-  }, */
 ];
 
 export default function AppSidebar() {

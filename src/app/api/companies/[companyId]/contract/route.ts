@@ -67,9 +67,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             sales_status: "in_progress",
 
             contracted_at: null,
+            contract_owner_id: null,
 
             contract_memo: null,
-
             contract_duration_days: null,
           },
         });
@@ -106,11 +106,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         },
         data: {
           sales_status: "contracted",
-
           contracted_at: contractedAt,
 
-          contract_memo: body.memo,
+          // 계약 완료 시점의 업체 담당자에게 계약 실적 귀속
+          contract_owner_id: company.owner_id,
 
+          contract_memo: body.memo,
           contract_duration_days: durationDays,
         },
       });

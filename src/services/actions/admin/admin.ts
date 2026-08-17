@@ -1,10 +1,10 @@
 import { fetcher } from "@/services/fetcher";
 import { AdminSalesPerformanceResponse } from "@/types/admin-sales-performance";
 
-export function getAdminSalesPerformance(year: number, month: number) {
+export function getAdminSalesPerformance(startDate: string, endDate: string) {
   const searchParams = new URLSearchParams({
-    year: String(year),
-    month: String(month),
+    startDate,
+    endDate,
   });
 
   return fetcher<AdminSalesPerformanceResponse>(

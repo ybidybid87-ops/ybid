@@ -1,3 +1,5 @@
+// src/lib/date.ts
+
 //한국 시간 기준으로 조회하기 위한 함수들
 
 const KOREA_TIME_OFFSET = "+09:00";
@@ -11,7 +13,6 @@ export function getKoreaNow() {
   );
 }
 
-//오늘 날짜(@db.Date) 비교용
 // 오늘 날짜(@db.Date) 비교용
 export function getToday() {
   const now = getKoreaNow();
@@ -70,4 +71,88 @@ export function getKoreaDateKey(value: string | Date) {
   }
 
   return `${year}-${month}-${day}`;
+}
+
+export type DateRange = {
+  startDate: string;
+  endDate: string;
+};
+
+export function formatLocalDate(year: number, month: number, day: number) {
+  return [year, String(month).padStart(2, "0"), String(day).padStart(2, "0")].join("-");
+}
+
+export function getTodayDateString() {
+  const now = new Date();
+
+  return formatLocalDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+}
+
+export function getThisMonthDateRange(): DateRange {
+  const now = new Date();
+
+  return {
+    startDate: formatLocalDate(now.getFullYear(), now.getMonth() + 1, 1),
+    endDate: getTodayDateString(),
+  };
+}
+
+export function getLastMonthDateRange(): DateRange {
+  const now = new Date();
+
+  const firstDayOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastDayOfLastMonth = new Date(firstDayOfThisMonth);
+
+  lastDayOfLastMonth.setDate(0);
+
+  return {
+    startDate: formatLocalDate(
+      lastDayOfLastMonth.getFullYear(),
+      lastDayOfLastMonth.getMonth() + 1,
+      1,
+    ),
+    endDate: formatLocalDate(
+      lastDayOfLastMonth.getFullYear(),
+      lastDayOfLastMonth.getMonth() + 1,
+      lastDayOfLastMonth.getDate(),
+    ),
+  };
+}
+
+// YYYY-MM-DD 문자열을 한국 시간 기준 하루 시작 시각으로 변환
+export function parseKoreaDateTime(date: string) {
+  return new Date(`${date}T00:00:00${KOREA_TIME_OFFSET}`);
+}
+
+// endDate를 포함한 조회에서 사용할 다음 날 00:00
+export function getNextKoreaDateTime(date: string) {
+  const parsed = parseKoreaDateTime(date);
+
+  parsed.setDate(parsed.getDate() + 1);
+
+  return parsed;
+}
+
+// 어제 문자열 함수
+export function getYesterdayDateString() {
+  const now = new Date();
+
+  now.setDate(now.getDate() - 1);
+
+  return formatLocalDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+}
+
+export function getFullThisMonthDateRange(): DateRange {
+  const now = new Date();
+
+  const lastDayOfThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  return {
+    startDate: formatLocalDate(now.getFullYear(), now.getMonth() + 1, 1),
+    endDate: formatLocalDate(
+      lastDayOfThisMonth.getFullYear(),
+      lastDayOfThisMonth.getMonth() + 1,
+      lastDayOfThisMonth.getDate(),
+    ),
+  };
 }

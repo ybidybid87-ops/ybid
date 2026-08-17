@@ -33,11 +33,11 @@ export default function AppPagination({ page, totalPages, onPageChange }: AppPag
 
         {pages.map((value, index) =>
           value === "..." ? (
-            <PaginationItem key={index}>
+            <PaginationItem key={`ellipsis-${index}`}>
               <PaginationEllipsis />
             </PaginationItem>
           ) : (
-            <PaginationItem key={value}>
+            <PaginationItem key={`page-${value}`}>
               <Button
                 variant={page === value ? "outline" : "ghost"}
                 onClick={() => onPageChange(value)}
