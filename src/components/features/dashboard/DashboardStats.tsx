@@ -5,8 +5,8 @@ import DashboardStatCard from "./DashboardStatCard";
 
 type Props = {
   dashboard?: DashboardResponse;
-  selectedDetail: DashboardDetailType | null;
-  onSelectDetail: (type: DashboardDetailType) => void;
+  selectedDetail?: DashboardDetailType | null;
+  onSelectDetail?: (type: DashboardDetailType) => void;
 };
 
 export default function DashboardStats({ dashboard, selectedDetail, onSelectDetail }: Props) {
@@ -51,7 +51,7 @@ export default function DashboardStats({ dashboard, selectedDetail, onSelectDeta
           icon={item.icon}
           color={item.color}
           isActive={selectedDetail === item.type}
-          onClick={() => onSelectDetail(item.type)}
+          onClick={onSelectDetail ? () => onSelectDetail(item.type) : undefined}
         />
       ))}
 

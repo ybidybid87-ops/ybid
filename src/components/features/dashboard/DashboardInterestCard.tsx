@@ -35,6 +35,8 @@ export default function DashboardInterestCard({
     },
   ];
 
+  const isClickable = !!onSelectDetail;
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -48,10 +50,12 @@ export default function DashboardInterestCard({
           <button
             key={item.type}
             type="button"
+            disabled={!isClickable}
             onClick={() => onSelectDetail?.(item.type)}
             className={cn(
               "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors",
-              onSelectDetail && "hover:bg-muted",
+              isClickable && "cursor-pointer hover:bg-muted",
+              !isClickable && "cursor-default",
               selectedDetail === item.type && "bg-muted font-semibold",
             )}
           >
