@@ -1,7 +1,7 @@
 // 관리자 영업 현황 API
 // src/app/api/admin/sales-performance/route.ts
 
-import { getKoreaNow } from "@/lib/date";
+import { getKoreaNow, getNextKoreaDateTime } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
 import { connection, NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
@@ -22,17 +22,12 @@ function isValidDate(date: string) {
 
   const [year, month, day] = date.split("-").map(Number);
 
-  const parsedDate = parseKoreaDateTime(date);
+  const parsedDate = new Date(Date.UTC(year, month - 1, day));
 
-  if (Number.isNaN(parsedDate.getTime())) {
-    return false;
-  }
-
-  // 2026-02-31 같은 존재하지 않는 날짜 방지
   return (
-    parsedDate.getFullYear() === year &&
-    parsedDate.getMonth() + 1 === month &&
-    parsedDate.getDate() === day
+    parsedDate.getUTCFullYear() === year &&
+    parsedDate.getUTCMonth() + 1 === month &&
+    parsedDate.getUTCDate() === day
   );
 }
 
@@ -127,9 +122,7 @@ export async function GET(request: NextRequest) {
 
     // 선택한 종료일 하루 전체를 포함하기 위해
     // 다음 날 한국 시간 00:00 미만으로 조회
-    const endDate = new Date(selectedEndDate);
-
-    endDate.setDate(endDate.getDate() + 1);
+    const endDate = getNextKoreaDateTime(endDateString);
 
     const [salesUsers, callGroups, contractGroups] = await Promise.all([
       // 영업사원별 현재 담당 업체 및 담당자 연락처
