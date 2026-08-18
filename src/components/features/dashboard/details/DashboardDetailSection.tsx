@@ -4,7 +4,6 @@ import AppPagination from "@/components/common/AppPagination";
 import DateRangeFilter from "@/components/common/DateRangeFilter";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
-import { useScrollToTopOnPageChange } from "@/hooks/common/useScrollToTopOnPageChange";
 import { useDashboardDetails } from "@/hooks/dashboard/useDashboardDetails";
 import {
   DateRange,
@@ -14,7 +13,7 @@ import {
   getYesterdayDateString,
 } from "@/lib/date";
 import { DashboardDetailScope, DashboardDetailType } from "@/types/dashboard";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DashboardDetailTable from "./DashboardDetailTable";
 
 type Props = {
@@ -89,10 +88,6 @@ export default function DashboardDetailSection({ type, scope = "me" }: Props) {
     getInitialDateRange(type),
   );
 
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useScrollToTopOnPageChange(sectionRef, page);
-
   /*
    * 다른 카드를 선택하면
    * 페이지와 해당 카드의 기본 조회 기간을 초기화
@@ -157,7 +152,7 @@ export default function DashboardDetailSection({ type, scope = "me" }: Props) {
   };
 
   return (
-    <section ref={sectionRef} className="scroll-mt-6 space-y-6">
+    <section className="space-y-6">
       <div>
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-bold">{detailTitle}</h2>
@@ -223,6 +218,9 @@ export default function DashboardDetailSection({ type, scope = "me" }: Props) {
         items={data?.items ?? []}
         type={type}
         scope={scope}
+        page={page}
+        pageSize={DEFAULT_PAGE_SIZE}
+        totalCount={data?.totalCount ?? 0}
         isLoading={isFetching}
       />
 

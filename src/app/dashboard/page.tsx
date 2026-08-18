@@ -40,6 +40,8 @@ export default function DashboardPage() {
       <TodayContactsSection
         contacts={dashboard?.todayContacts ?? []}
         page={page}
+        pageSize={DEFAULT_PAGE_SIZE}
+        totalCount={dashboard?.todayContactCount ?? 0}
         totalPages={dashboard?.totalPages ?? 0}
         onPageChange={setPage}
         isLoading={isLoading}

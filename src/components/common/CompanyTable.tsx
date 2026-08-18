@@ -4,13 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { INTEREST_LEVEL_LABELS } from "@/constants/businessData";
-import { formatDate, getInterestBadgeStyle } from "@/lib/utils";
+import { formatDate, getDescendingListNumber, getInterestBadgeStyle } from "@/lib/utils";
 import Link from "next/link";
 import Loading from "./Loading";
 import EditContactScheduleButton from "./buttons/EditContactScheduleButton";
 
 type Props = {
   companies: any[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
   isLoading?: boolean;
 };
 
@@ -20,7 +23,13 @@ const SALES_STATUS_LABELS: Record<string, string> = {
   contracted: "계약 완료",
 };
 
-export default function CompanyTable({ companies, isLoading = false }: Props) {
+export default function CompanyTable({
+  companies,
+  page,
+  pageSize,
+  totalCount,
+  isLoading = false,
+}: Props) {
   return (
     <Card className="relative overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
       {isLoading && (
@@ -32,6 +41,7 @@ export default function CompanyTable({ companies, isLoading = false }: Props) {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-slate-600">
             <tr className="border-b">
+              <th className="w-16 px-5 py-4 text-center">번호</th>
               <th className="px-5 py-4 text-left">업체명</th>
               <th className="px-5 py-4 text-left">대표자</th>
               <th className="px-5 py-4 text-left">대표 연락처</th>
@@ -45,13 +55,21 @@ export default function CompanyTable({ companies, isLoading = false }: Props) {
           </thead>
 
           <tbody>
-            {companies.map((company) => {
+            {companies.map((company, index) => {
               const nextSchedule = company.contact_schedules?.find(
                 (schedule: any) => !schedule.completed,
               );
 
               return (
                 <tr key={company.id} className="border-b last:border-b-0">
+                  <td className="px-5 py-4 text-center text-muted-foreground">
+  {getDescendingListNumber({
+    totalCount,
+    page,
+    pageSize,
+    index,
+  })}
+</td>
                   <td className="px-5 py-4 font-semibold">{company.name}</td>
                   <td className="px-5 py-4">{company.ceo_name ?? "-"}</td>
                   <td className="px-5 py-4">{company.ceo_phone ?? "-"}</td>
@@ -109,7 +127,7 @@ export default function CompanyTable({ companies, isLoading = false }: Props) {
 
             {companies.length === 0 && (
               <tr>
-                <td colSpan={9} className="py-16 text-center text-gray-500">
+                <td colSpan={10} className="py-16 text-center text-gray-500">
                   담당 중인 업체가 없습니다.
                 </td>
               </tr>

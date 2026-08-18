@@ -159,3 +159,18 @@ export function toCompanyFormValues(company: CompanyDetail): CreateCompanyFormVa
     ),
   };
 }
+
+/* 페이지네이션 목록의 내림차순 번호 계산 */
+export function getDescendingListNumber({
+  totalCount,
+  page,
+  pageSize,
+  index,
+}: {
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  index: number;
+}) {
+  return totalCount - (page - 1) * pageSize - index;
+}
