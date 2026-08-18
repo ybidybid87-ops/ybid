@@ -156,3 +156,25 @@ export function getFullThisMonthDateRange(): DateRange {
     ),
   };
 }
+
+// 한국 시간 기준 오늘 00:00 ~ 내일 00:00 범위
+export function getTodayRange() {
+  const now = getKoreaNow();
+
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+
+  const startDate = new Date(
+    `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}T00:00:00${KOREA_TIME_OFFSET}`,
+  );
+
+  const endDate = new Date(startDate);
+
+  endDate.setDate(endDate.getDate() + 1);
+
+  return {
+    startDate,
+    endDate,
+  };
+}

@@ -1,7 +1,7 @@
 // app/api/dashboard/route.ts
 
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
-import { getMonthRange, getToday } from "@/lib/date";
+import { getMonthRange, getToday, getTodayRange } from "@/lib/date";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
   const todayDate = getToday();
 
   const { startDate: monthStart, endDate: monthEnd } = getMonthRange();
+  const { startDate: todayStart, endDate: todayEnd } = getTodayRange();
 
   const companyWhere = {
     owner_id: user.id,
@@ -56,6 +57,11 @@ export async function GET(request: NextRequest) {
       where: {
         ...companyWhere,
         is_archived: false,
+
+        created_at: {
+          gte: todayStart,
+          lt: todayEnd,
+        },
       },
     }),
 

@@ -1,6 +1,6 @@
-//api/admin/dashboard-stats/route.ts
+// api/admin/dashboard-stats/route.ts
 
-import { getMonthRange, getToday } from "@/lib/date";
+import { getMonthRange, getToday, getTodayRange } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
 import { NextResponse } from "next/server";
 import prisma from "prisma/prisma";
@@ -22,6 +22,8 @@ export async function GET() {
 
   const todayDate = getToday();
 
+  const { startDate: todayStart, endDate: todayEnd } = getTodayRange();
+
   const { startDate: monthStart, endDate: monthEnd } = getMonthRange();
 
   const [
@@ -34,6 +36,11 @@ export async function GET() {
     prisma.companies.count({
       where: {
         is_archived: false,
+
+        created_at: {
+          gte: todayStart,
+          lt: todayEnd,
+        },
       },
     }),
 

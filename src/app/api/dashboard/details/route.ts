@@ -1,7 +1,13 @@
 // api/dashboard/details/route.ts
 
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
-import { getNextKoreaDateTime, getToday, parseKoreaDate, parseKoreaDateTime } from "@/lib/date";
+import {
+  getNextKoreaDateTime,
+  getToday,
+  getTodayRange,
+  parseKoreaDate,
+  parseKoreaDateTime,
+} from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
 import { DashboardDetailType } from "@/types/dashboard";
 import { NextRequest, NextResponse } from "next/server";
@@ -163,13 +169,24 @@ export async function GET(request: NextRequest) {
   };
 
   if (type === "companies") {
+    const { startDate: todayStart, endDate: todayEnd } = getTodayRange();
+
+    const where = {
+      ...companyWhere,
+
+      created_at: {
+        gte: todayStart,
+        lt: todayEnd,
+      },
+    };
+
     const [totalCount, companies] = await Promise.all([
       prisma.companies.count({
-        where: companyWhere,
+        where,
       }),
 
       prisma.companies.findMany({
-        where: companyWhere,
+        where,
 
         select: companySelect,
 
@@ -178,6 +195,7 @@ export async function GET(request: NextRequest) {
         },
 
         skip,
+
         take: pageSize,
       }),
     ]);
@@ -195,8 +213,11 @@ export async function GET(request: NextRequest) {
         })),
 
         page,
+
         pageSize,
+
         totalCount,
+
         totalPages: Math.ceil(totalCount / pageSize),
       },
     });
