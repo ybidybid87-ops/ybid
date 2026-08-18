@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, getInterestBadgeStyle, getInterestTextStyle } from "@/lib/utils";
 import { DashboardDetailType } from "@/types/dashboard";
 
 type Props = {
@@ -22,16 +22,19 @@ export default function DashboardInterestCard({
       label: "상",
       count: high,
       type: "interest-high" as const,
+      level: "high" as const,
     },
     {
       label: "중",
       count: medium,
       type: "interest-medium" as const,
+      level: "medium" as const,
     },
     {
       label: "하",
       count: low,
       type: "interest-low" as const,
+      level: "low" as const,
     },
   ];
 
@@ -59,8 +62,18 @@ export default function DashboardInterestCard({
               selectedDetail === item.type && "bg-muted font-semibold",
             )}
           >
-            <span>{item.label}</span>
-            <span>{item.count}개</span>
+            <span
+              className={cn(
+                "rounded-md border px-2 py-0.5 font-medium",
+                getInterestBadgeStyle(item.level),
+              )}
+            >
+              {item.label}
+            </span>
+
+            <span className={cn("font-medium", getInterestTextStyle(item.level))}>
+              {item.count}개
+            </span>
           </button>
         ))}
       </CardContent>

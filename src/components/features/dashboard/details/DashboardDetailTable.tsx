@@ -1,10 +1,11 @@
 "use client";
 
 import Loading from "@/components/common/Loading";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { INTEREST_LEVEL_LABELS } from "@/constants/businessData";
 import { getKoreaDateKey } from "@/lib/date";
-import { getDescendingListNumber } from "@/lib/utils";
+import { getDescendingListNumber, getInterestBadgeStyle } from "@/lib/utils";
 import { DashboardDetailItem, DashboardDetailScope, DashboardDetailType } from "@/types/dashboard";
 import Link from "next/link";
 
@@ -99,7 +100,11 @@ export default function DashboardDetailTable({
                 </td>
               )}
 
-              <td className="px-4 py-3 pl-7">{INTEREST_LEVEL_LABELS[item.interestLevel]}</td>
+              <td className="px-4 py-3">
+                <Badge className={getInterestBadgeStyle(item.interestLevel)}>
+                  {INTEREST_LEVEL_LABELS[item.interestLevel]}
+                </Badge>
+              </td>
 
               <td className="px-4 py-3">{item.primaryContact?.name ?? "-"}</td>
 
