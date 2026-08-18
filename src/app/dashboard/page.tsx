@@ -8,14 +8,12 @@ import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
 import { useDashboard } from "@/hooks/dashboard/useDashboard";
 import useUser from "@/hooks/user/useUser";
 import { DashboardDetailType } from "@/types/dashboard";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 export default function DashboardPage() {
   const [page, setPage] = useState(1);
 
   const [selectedDetail, setSelectedDetail] = useState<DashboardDetailType | null>(null);
-
-  const detailSectionRef = useRef<HTMLDivElement>(null);
 
   const { data: user } = useUser();
 
@@ -25,27 +23,7 @@ export default function DashboardPage() {
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  useEffect(() => {
-    if (!selectedDetail) {
-      return;
-    }
-
-    detailSectionRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, [selectedDetail]);
-
   const handleSelectDetail = (type: DashboardDetailType) => {
-    if (selectedDetail === type) {
-      detailSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-
-      return;
-    }
-
     setSelectedDetail(type);
   };
 
@@ -67,11 +45,7 @@ export default function DashboardPage() {
         isLoading={isLoading}
       />
 
-      {selectedDetail && (
-        <div ref={detailSectionRef} className="scroll-mt-6">
-          <DashboardDetailSection type={selectedDetail} />
-        </div>
-      )}
+      {selectedDetail && <DashboardDetailSection type={selectedDetail} />}
     </div>
   );
 }
