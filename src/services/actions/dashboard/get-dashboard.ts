@@ -28,6 +28,7 @@ export async function getDashboard({
 export async function getDashboardDetails({
   type,
   scope = "me",
+  period,
   startDate,
   endDate,
   page,
@@ -39,6 +40,10 @@ export async function getDashboardDetails({
     page: String(page),
     pageSize: String(pageSize),
   });
+
+  if (period) {
+    searchParams.set("period", period);
+  }
 
   if (startDate) {
     searchParams.set("startDate", startDate);

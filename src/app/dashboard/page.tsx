@@ -47,7 +47,7 @@ export default function DashboardPage() {
         isLoading={isLoading}
       />
 
-      {selectedDetail && <DashboardDetailSection type={selectedDetail} />}
+      {selectedDetail && <DashboardDetailSection type={selectedDetail} period="today" />}
     </div>
   );
 }

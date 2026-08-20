@@ -1,7 +1,7 @@
 // app/api/dashboard/route.ts
 
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
-import { getMonthRange, getToday, getTodayRange } from "@/lib/date";
+import { getToday, getTodayRange } from "@/lib/date";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
@@ -38,7 +38,6 @@ export async function GET(request: NextRequest) {
 
   const todayDate = getToday();
 
-  const { startDate: monthStart, endDate: monthEnd } = getMonthRange();
   const { startDate: todayStart, endDate: todayEnd } = getTodayRange();
 
   const companyWhere = {
@@ -50,14 +49,13 @@ export async function GET(request: NextRequest) {
     interestLevelGroups,
     todayContactCount,
     overdueContactCount,
-    contractedThisMonthCount,
+    todayContractCount,
     todayContacts,
   ] = await Promise.all([
     prisma.companies.count({
       where: {
         ...companyWhere,
         is_archived: false,
-
         created_at: {
           gte: todayStart,
           lt: todayEnd,
@@ -67,12 +65,14 @@ export async function GET(request: NextRequest) {
 
     prisma.companies.groupBy({
       by: ["interest_level"],
-
       where: {
         ...companyWhere,
         is_archived: false,
+        created_at: {
+          gte: todayStart,
+          lt: todayEnd,
+        },
       },
-
       _count: {
         _all: true,
       },
@@ -109,12 +109,10 @@ export async function GET(request: NextRequest) {
     prisma.companies.count({
       where: {
         ...companyWhere,
-
         is_archived: false,
-
         contracted_at: {
-          gte: monthStart,
-          lt: monthEnd,
+          gte: todayStart,
+          lt: todayEnd,
         },
       },
     }),
@@ -190,24 +188,15 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     success: true,
-
     data: {
       myCompanyCount,
-
       interestLevelCounts,
-
       todayContactCount,
-
       overdueContactCount,
-
-      contractedThisMonthCount,
-
+      todayContractCount,
       todayContacts,
-
       page,
-
       pageSize,
-
       totalPages: Math.ceil(todayContactCount / pageSize),
     },
   });

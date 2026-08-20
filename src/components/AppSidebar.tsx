@@ -39,7 +39,7 @@ const salesMenus = [
 
 const adminMenus = [
   {
-    title: "전체 대시보드",
+    title: "관리자 대시보드",
     url: "/admin/dashboard",
     icon: ChartNoAxesCombined,
   },

@@ -1,7 +1,6 @@
 import PageHeader from "@/components/common/PageHeader";
 import { getUser } from "@/services/actions/user/user.api";
 import { redirect } from "next/navigation";
-import AdminDashboardStats from "./AdminDashboardStats";
 import SalesPerformanceSection from "./SalesPerformanceSection";
 
 export default async function AdminPageContent() {
@@ -14,8 +13,6 @@ export default async function AdminPageContent() {
   return (
     <div className="space-y-10">
       <PageHeader title="관리자" description="팀원의 영업 현황을 확인합니다." />
-
-      <AdminDashboardStats />
 
       <SalesPerformanceSection />
     </div>

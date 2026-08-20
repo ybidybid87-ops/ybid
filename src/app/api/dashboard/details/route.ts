@@ -225,10 +225,15 @@ export async function GET(request: NextRequest) {
 
   if (type === "interest-high" || type === "interest-medium" || type === "interest-low") {
     const interestLevel = type.replace("interest-", "") as "high" | "medium" | "low";
+    const { startDate: todayStart, endDate: todayEnd } = getTodayRange();
 
     const where = {
       ...companyWhere,
       interest_level: interestLevel,
+      created_at: {
+        gte: todayStart,
+        lt: todayEnd,
+      },
     };
 
     const [totalCount, companies] = await Promise.all([
