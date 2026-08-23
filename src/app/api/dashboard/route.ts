@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     interestLevelGroups,
     todayContactCount,
     overdueContactCount,
-    todayContractCount,
+    contractedTodayCount,
     todayContacts,
   ] = await Promise.all([
     prisma.companies.count({
@@ -193,7 +193,7 @@ export async function GET(request: NextRequest) {
       interestLevelCounts,
       todayContactCount,
       overdueContactCount,
-      todayContractCount,
+      contractedTodayCount,
       todayContacts,
       page,
       pageSize,

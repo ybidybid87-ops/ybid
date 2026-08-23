@@ -1,3 +1,4 @@
+import { AdminDashboardPeriod } from "@/types/admin-dashboard";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { getAdminSalesPerformance } from "../actions/admin/admin";
 import { getAdminDashboardStats } from "../actions/admin/dashboard-stats";
@@ -12,10 +13,10 @@ export const adminQueries = {
       refetchOnMount: "always",
     }),
 
-  dashboardStats: () =>
+  dashboardStats: (period: AdminDashboardPeriod) =>
     queryOptions({
-      queryKey: adminKeys.dashboardStats(),
-      queryFn: getAdminDashboardStats,
+      queryKey: adminKeys.dashboardStats(period),
+      queryFn: () => getAdminDashboardStats(period),
       refetchOnMount: "always",
     }),
 };

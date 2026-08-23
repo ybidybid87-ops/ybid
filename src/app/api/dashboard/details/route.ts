@@ -2,6 +2,7 @@
 
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
 import {
+  getMonthRange,
   getNextKoreaDateTime,
   getToday,
   getTodayRange,
@@ -39,6 +40,8 @@ export async function GET(request: NextRequest) {
   }
 
   const scope = request.nextUrl.searchParams.get("scope") ?? "me";
+  const period = request.nextUrl.searchParams.get("period") ?? "today";
+
   const type = request.nextUrl.searchParams.get("type") as DashboardDetailType | null;
 
   const startDate = request.nextUrl.searchParams.get("startDate");
@@ -75,6 +78,18 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  if (!["today", "month", "all"].includes(period)) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "올바른 조회 기간이 아닙니다.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
   if (scope === "all" && !["admin", "leader"].includes(user.role)) {
     return NextResponse.json(
       {
@@ -87,17 +102,15 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const requiresDateRange = ["contact-schedules", "contracts"].includes(type);
+  const requiresDateRange = type === "contact-schedules";
 
   if (requiresDateRange && (!startDate || !endDate)) {
     return NextResponse.json(
       {
         success: false,
-        message: "조회 시작일과 종료일은 필수입니다.",
+        message: "조회 기간이 필요합니다.",
       },
-      {
-        status: 400,
-      },
+      { status: 400 },
     );
   }
 
@@ -137,6 +150,28 @@ export async function GET(request: NextRequest) {
           is_archived: false,
         };
 
+  const getCreatedAtWhere = () => {
+    if (period === "today") {
+      const { startDate, endDate } = getTodayRange();
+
+      return {
+        gte: startDate,
+        lt: endDate,
+      };
+    }
+
+    if (period === "month") {
+      const { startDate, endDate } = getMonthRange();
+
+      return {
+        gte: startDate,
+        lt: endDate,
+      };
+    }
+
+    return undefined;
+  };
+
   const companySelect = {
     id: true,
     name: true,
@@ -169,15 +204,13 @@ export async function GET(request: NextRequest) {
   };
 
   if (type === "companies") {
-    const { startDate: todayStart, endDate: todayEnd } = getTodayRange();
+    const createdAtWhere = getCreatedAtWhere();
 
     const where = {
       ...companyWhere,
-
-      created_at: {
-        gte: todayStart,
-        lt: todayEnd,
-      },
+      ...(createdAtWhere && {
+        created_at: createdAtWhere,
+      }),
     };
 
     const [totalCount, companies] = await Promise.all([
@@ -195,7 +228,6 @@ export async function GET(request: NextRequest) {
         },
 
         skip,
-
         take: pageSize,
       }),
     ]);
@@ -213,11 +245,8 @@ export async function GET(request: NextRequest) {
         })),
 
         page,
-
         pageSize,
-
         totalCount,
-
         totalPages: Math.ceil(totalCount / pageSize),
       },
     });
@@ -225,15 +254,15 @@ export async function GET(request: NextRequest) {
 
   if (type === "interest-high" || type === "interest-medium" || type === "interest-low") {
     const interestLevel = type.replace("interest-", "") as "high" | "medium" | "low";
-    const { startDate: todayStart, endDate: todayEnd } = getTodayRange();
+
+    const createdAtWhere = getCreatedAtWhere();
 
     const where = {
       ...companyWhere,
       interest_level: interestLevel,
-      created_at: {
-        gte: todayStart,
-        lt: todayEnd,
-      },
+      ...(createdAtWhere && {
+        created_at: createdAtWhere,
+      }),
     };
 
     const [totalCount, companies] = await Promise.all([
@@ -276,16 +305,40 @@ export async function GET(request: NextRequest) {
   }
 
   if (type === "contracts") {
-    const start = parseKoreaDateTime(startDate!);
-    const end = getNextKoreaDateTime(endDate!);
+    let contractedAtWhere:
+      | {
+          gte: Date;
+          lt: Date;
+        }
+      | undefined;
+
+    if (startDate && endDate) {
+      contractedAtWhere = {
+        gte: parseKoreaDateTime(startDate),
+        lt: getNextKoreaDateTime(endDate),
+      };
+    } else if (period === "today") {
+      const { startDate, endDate } = getTodayRange();
+
+      contractedAtWhere = {
+        gte: startDate,
+        lt: endDate,
+      };
+    } else if (period === "month") {
+      const { startDate, endDate } = getMonthRange();
+
+      contractedAtWhere = {
+        gte: startDate,
+        lt: endDate,
+      };
+    }
 
     const where = {
       ...companyWhere,
-
-      contracted_at: {
-        gte: start,
-        lt: end,
-      },
+      sales_status: "contracted",
+      ...(contractedAtWhere && {
+        contracted_at: contractedAtWhere,
+      }),
     };
 
     const [totalCount, companies] = await Promise.all([
@@ -295,16 +348,13 @@ export async function GET(request: NextRequest) {
 
       prisma.companies.findMany({
         where,
-
         select: {
           ...companySelect,
           contracted_at: true,
         },
-
         orderBy: {
           contracted_at: "desc",
         },
-
         skip,
         take: pageSize,
       }),
@@ -312,7 +362,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-
       data: {
         items: companies.map((company) => ({
           companyId: company.id,
@@ -322,7 +371,6 @@ export async function GET(request: NextRequest) {
           primaryContact: company.company_contacts[0] ?? null,
           contractedAt: company.contracted_at,
         })),
-
         page,
         pageSize,
         totalCount,

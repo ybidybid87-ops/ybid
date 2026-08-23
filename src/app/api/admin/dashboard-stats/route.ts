@@ -1,11 +1,11 @@
 // api/admin/dashboard-stats/route.ts
 
-import { getMonthRange, getToday, getTodayRange } from "@/lib/date";
+import { getMonthRange, getToday } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const user = await getUser();
 
   if (!user || !["admin", "leader"].includes(user.role)) {
@@ -20,79 +20,95 @@ export async function GET() {
     );
   }
 
+  const period = request.nextUrl.searchParams.get("period") ?? "all";
+
+  if (period !== "all" && period !== "month") {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "올바른 조회 기간이 아닙니다.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
   const todayDate = getToday();
-
-  const { startDate: todayStart, endDate: todayEnd } = getTodayRange();
-
   const { startDate: monthStart, endDate: monthEnd } = getMonthRange();
 
-  const [
-    companyCount,
-    interestLevelGroups,
-    todayContactCount,
-    overdueContactCount,
-    contractedThisMonthCount,
-  ] = await Promise.all([
-    prisma.companies.count({
-      where: {
-        is_archived: false,
-
-        created_at: {
-          gte: todayStart,
-          lt: todayEnd,
-        },
-      },
-    }),
-
-    prisma.companies.groupBy({
-      by: ["interest_level"],
-
-      where: {
-        is_archived: false,
-      },
-
-      _count: {
-        _all: true,
-      },
-    }),
-
-    prisma.contact_schedules.count({
-      where: {
-        completed: false,
-
-        scheduled_at: todayDate,
-
-        companies: {
-          is_archived: false,
-        },
-      },
-    }),
-
-    prisma.contact_schedules.count({
-      where: {
-        completed: false,
-
-        scheduled_at: {
-          lt: todayDate,
-        },
-
-        companies: {
-          is_archived: false,
-        },
-      },
-    }),
-
-    prisma.companies.count({
-      where: {
-        is_archived: false,
-
-        contracted_at: {
+  const createdAtWhere =
+    period === "month"
+      ? {
           gte: monthStart,
           lt: monthEnd,
+        }
+      : undefined;
+
+  const contractedAtWhere =
+    period === "month"
+      ? {
+          gte: monthStart,
+          lt: monthEnd,
+        }
+      : undefined;
+
+  const [companyCount, interestLevelGroups, todayContactCount, overdueContactCount, contractCount] =
+    await Promise.all([
+      prisma.companies.count({
+        where: {
+          is_archived: false,
+          ...(createdAtWhere && {
+            created_at: createdAtWhere,
+          }),
         },
-      },
-    }),
-  ]);
+      }),
+
+      prisma.companies.groupBy({
+        by: ["interest_level"],
+        where: {
+          is_archived: false,
+          ...(createdAtWhere && {
+            created_at: createdAtWhere,
+          }),
+        },
+        _count: {
+          _all: true,
+        },
+      }),
+
+      prisma.contact_schedules.count({
+        where: {
+          completed: false,
+          scheduled_at: todayDate,
+          companies: {
+            is_archived: false,
+          },
+        },
+      }),
+
+      prisma.contact_schedules.count({
+        where: {
+          completed: false,
+          scheduled_at: {
+            lt: todayDate,
+          },
+          companies: {
+            is_archived: false,
+          },
+        },
+      }),
+
+      prisma.companies.count({
+        where: {
+          is_archived: false,
+          sales_status: "contracted",
+          ...(contractedAtWhere && {
+            contracted_at: contractedAtWhere,
+          }),
+        },
+      }),
+    ]);
 
   const interestLevelCounts = {
     high: 0,
@@ -106,16 +122,11 @@ export async function GET() {
 
   return NextResponse.json({
     success: true,
-
     data: {
       companyCount,
-
       todayContactCount,
-
       overdueContactCount,
-
-      contractedThisMonthCount,
-
+      contractCount,
       interestLevelCounts,
     },
   });

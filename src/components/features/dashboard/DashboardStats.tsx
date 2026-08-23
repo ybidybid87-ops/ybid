@@ -34,8 +34,8 @@ export default function DashboardStats({ dashboard, selectedDetail, onSelectDeta
     },
     {
       type: "contracts" as const,
-      title: "이번 달 계약",
-      count: dashboard?.todayContractCount ?? 0,
+      title: "오늘 계약",
+      count: dashboard?.contractedTodayCount ?? 0,
       icon: BriefcaseBusiness,
       color: "text-emerald-400",
     },

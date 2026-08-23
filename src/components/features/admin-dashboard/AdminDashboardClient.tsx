@@ -1,12 +1,17 @@
 "use client";
 
+import { AdminDashboardPeriod } from "@/types/admin-dashboard";
 import { DashboardDetailType } from "@/types/dashboard";
 import { useState } from "react";
 import AdminDashboardStats from "../admin/AdminDashboardStats";
 import DashboardDetailSection from "../dashboard/details/DashboardDetailSection";
 import AdminTodayContactsSection from "./AdminTodayContactsSection";
 
-export default function AdminDashboardClient() {
+type Props = {
+  period: AdminDashboardPeriod;
+};
+
+export default function AdminDashboardClient({ period }: Props) {
   const [selectedDetail, setSelectedDetail] = useState<DashboardDetailType | null>(null);
 
   const handleSelectDetail = (type: DashboardDetailType) => {
@@ -15,11 +20,17 @@ export default function AdminDashboardClient() {
 
   return (
     <div className="space-y-10">
-      <AdminDashboardStats selectedDetail={selectedDetail} onSelectDetail={handleSelectDetail} />
+      <AdminDashboardStats
+        period={period}
+        selectedDetail={selectedDetail}
+        onSelectDetail={handleSelectDetail}
+      />
 
       <AdminTodayContactsSection />
 
-      {selectedDetail && <DashboardDetailSection type={selectedDetail} scope="all" />}
+      {selectedDetail && (
+        <DashboardDetailSection type={selectedDetail} scope="all" period={period} />
+      )}
     </div>
   );
 }

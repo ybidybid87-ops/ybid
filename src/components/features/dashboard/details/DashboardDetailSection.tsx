@@ -12,7 +12,12 @@ import {
   getTodayDateString,
   getYesterdayDateString,
 } from "@/lib/date";
-import { DashboardDetailScope, DashboardDetailType, DashboardPeriod } from "@/types/dashboard";
+import {
+  DashboardDetailPeriod,
+  DashboardDetailScope,
+  DashboardDetailType,
+  DashboardPeriod,
+} from "@/types/dashboard";
 import { useEffect, useMemo, useState } from "react";
 import DashboardDetailTable from "./DashboardDetailTable";
 
@@ -65,14 +70,32 @@ const DETAIL_INFO: Record<
   },
 };
 
-function getInitialDateRange(type: DashboardDetailType): DateRange | null {
-  if (type === "contact-schedules" || type === "contracts") {
+function getInitialDateRange(
+  type: DashboardDetailType,
+  period?: DashboardDetailPeriod,
+): DateRange | null {
+  if (type === "contact-schedules") {
     const today = getTodayDateString();
 
     return {
       startDate: today,
       endDate: today,
     };
+  }
+
+  if (type === "contracts") {
+    if (period === "today") {
+      const today = getTodayDateString();
+
+      return {
+        startDate: today,
+        endDate: today,
+      };
+    }
+
+    if (period === "month") {
+      return getThisMonthDateRange();
+    }
   }
 
   return null;
@@ -82,7 +105,7 @@ export default function DashboardDetailSection({ type, scope = "me", period }: P
   const [page, setPage] = useState(1);
 
   const [selectedRange, setSelectedRange] = useState<DateRange | null>(() =>
-    getInitialDateRange(type),
+    getInitialDateRange(type, period),
   );
 
   /*
@@ -91,8 +114,8 @@ export default function DashboardDetailSection({ type, scope = "me", period }: P
    */
   useEffect(() => {
     setPage(1);
-    setSelectedRange(getInitialDateRange(type));
-  }, [type]);
+    setSelectedRange(getInitialDateRange(type, period));
+  }, [type, period]);
 
   const params = useMemo(
     () => ({

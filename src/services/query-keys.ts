@@ -1,3 +1,4 @@
+import { AdminDashboardPeriod } from "@/types/admin-dashboard";
 import { DashboardDetailParams } from "@/types/dashboard";
 
 export const userKeys = {
@@ -75,5 +76,6 @@ export const adminKeys = {
   salesPerformance: (startDate: string, endDate: string) =>
     [...adminKeys.all, "sales-performance", startDate, endDate] as const,
 
-  dashboardStats: () => [...adminKeys.all, "dashboard-stats"] as const,
+  dashboardStats: (period: AdminDashboardPeriod) =>
+    [...adminKeys.all, "dashboard-stats", period] as const,
 };

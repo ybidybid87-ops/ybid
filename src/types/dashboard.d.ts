@@ -15,7 +15,7 @@ export type DashboardResponse = {
   myCompanyCount: number;
   todayContactCount: number;
   overdueContactCount: number;
-  todayContractCount: number;
+  contractedTodayCount: number;
 
   interestLevelCounts: {
     high: number;
@@ -48,6 +48,8 @@ export type DashboardResponse = {
 
 export type DashboardDetailScope = "me" | "all";
 
+export type DashboardDetailPeriod = "today" | "month" | "all";
+
 export type DashboardDetailType =
   | "companies"
   | "contact-schedules"
@@ -62,7 +64,7 @@ export type DashboardPeriod = "today" | "month" | "all";
 export type DashboardDetailParams = {
   type: DashboardDetailType;
   scope?: DashboardDetailScope;
-  period?: DashboardPeriod;
+  period?: DashboardDetailPeriod;
   startDate?: string;
   endDate?: string;
   page: number;
