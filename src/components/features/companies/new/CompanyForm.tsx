@@ -77,15 +77,6 @@ export default function CompanyForm({ mode = "create" }: CompanyFormProps) {
     name: "businessLicenses",
   });
 
-  const { mutate: createCompanyMutation, isPending: isCreating } = useCreateCompany();
-  const { mutate: updateCompanyMutation, isPending: isUpdating } = useUpdateCompany();
-
-  if (mode === "edit" && companyPending) {
-    return <Loading />;
-  }
-
-  const isPending = isCreating || isUpdating;
-
   const {
     fields: contactFields,
     append: appendContact,
@@ -94,6 +85,15 @@ export default function CompanyForm({ mode = "create" }: CompanyFormProps) {
     control: form.control,
     name: "contacts",
   });
+
+  const { mutate: createCompanyMutation, isPending: isCreating } = useCreateCompany();
+  const { mutate: updateCompanyMutation, isPending: isUpdating } = useUpdateCompany();
+
+  if (mode === "edit" && companyPending) {
+    return <Loading />;
+  }
+
+  const isPending = isCreating || isUpdating;
 
   const onSubmit = (values: CreateCompanyFormValues) => {
     const input = {

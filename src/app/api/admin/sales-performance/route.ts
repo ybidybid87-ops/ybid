@@ -21,7 +21,6 @@ function isValidDate(date: string) {
   }
 
   const [year, month, day] = date.split("-").map(Number);
-
   const parsedDate = new Date(Date.UTC(year, month - 1, day));
 
   return (
@@ -68,10 +67,36 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
 
+    const period = searchParams.get("period");
     const startDateParam = searchParams.get("startDate");
     const endDateParam = searchParams.get("endDate");
 
-    // 시작일과 종료일은 함께 전달되어야 함
+    if (period && period !== "all" && period !== "month") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "올바른 조회 기간이 아닙니다.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    // period와 직접 날짜 지정은 동시에 사용하지 않음
+    if (period && (startDateParam || endDateParam)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "조회 기간 방식이 올바르지 않습니다.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    // 직접 날짜 조회라면 시작일/종료일을 모두 전달해야 함
     if ((startDateParam && !endDateParam) || (!startDateParam && endDateParam)) {
       return NextResponse.json(
         {
@@ -86,46 +111,88 @@ export async function GET(request: NextRequest) {
 
     const now = getKoreaNow();
 
-    // 기간이 전달되지 않으면 이번 달 1일 ~ 오늘
-    const startDateString =
-      startDateParam ?? formatKoreaDate(now.getFullYear(), now.getMonth() + 1, 1);
+    let startDate: Date | undefined;
+    let endDate: Date | undefined;
 
-    const endDateString =
-      endDateParam ?? formatKoreaDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    let startDateString: string | null = null;
+    let endDateString: string | null = null;
 
-    if (!isValidDate(startDateString) || !isValidDate(endDateString)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "올바른 날짜를 입력해주세요.",
-        },
-        {
-          status: 400,
-        },
-      );
+    if (period === "all") {
+      // 관리자 대시보드: 전체 누적
+      startDate = undefined;
+      endDate = undefined;
+    } else if (period === "month") {
+      // 당월 대시보드: 이번 달 1일 ~ 오늘
+      startDateString = formatKoreaDate(now.getFullYear(), now.getMonth() + 1, 1);
+
+      endDateString = formatKoreaDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+
+      startDate = parseKoreaDateTime(startDateString);
+      endDate = getNextKoreaDateTime(endDateString);
+    } else {
+      // 기존 /admin 팀원별 현황
+      // 날짜가 없으면 이번 달 1일 ~ 오늘
+      startDateString = startDateParam ?? formatKoreaDate(now.getFullYear(), now.getMonth() + 1, 1);
+
+      endDateString =
+        endDateParam ?? formatKoreaDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+
+      if (!isValidDate(startDateString) || !isValidDate(endDateString)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "올바른 날짜를 입력해주세요.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      const selectedStartDate = parseKoreaDateTime(startDateString);
+      const selectedEndDate = parseKoreaDateTime(endDateString);
+
+      if (selectedStartDate > selectedEndDate) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "시작일은 종료일보다 늦을 수 없습니다.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      startDate = selectedStartDate;
+      endDate = getNextKoreaDateTime(endDateString);
     }
 
-    const startDate = parseKoreaDateTime(startDateString);
-    const selectedEndDate = parseKoreaDateTime(endDateString);
+    /**
+     * period=month일 때만 담당자 연락처에 기간을 적용한다.
+     *
+     * 기존 /admin 팀원별 현황의 startDate/endDate 조회에서는
+     * 담당자 연락처는 현재 보유 현황을 유지한다.
+     */
+    const dashboardMonthRange =
+      period === "month" && startDate && endDate
+        ? {
+            gte: startDate,
+            lt: endDate,
+          }
+        : undefined;
 
-    if (startDate > selectedEndDate) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "시작일은 종료일보다 늦을 수 없습니다.",
-        },
-        {
-          status: 400,
-        },
-      );
-    }
+    // 담당 업체 수에 적용할 업체 등록 기간
+    const companyCreatedAtRange =
+      startDate && endDate
+        ? {
+            gte: startDate,
+            lt: endDate,
+          }
+        : undefined;
 
-    // 선택한 종료일 하루 전체를 포함하기 위해
-    // 다음 날 한국 시간 00:00 미만으로 조회
-    const endDate = getNextKoreaDateTime(endDateString);
-
-    const [salesUsers, callGroups, contractGroups] = await Promise.all([
-      // 영업사원별 현재 담당 업체 및 담당자 연락처
+    const [salesUsers, companyGroups, contacts, callGroups, contractGroups] = await Promise.all([
+      // 영업사원
       prisma.users.findMany({
         where: {
           role: {
@@ -135,23 +202,47 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           name: true,
-          companies_companies_owner_idTousers: {
-            where: {
-              is_archived: false,
-            },
+        },
+      }),
+
+      // 선택 기간에 등록된 현재 미계약 담당 업체
+      prisma.companies.groupBy({
+        by: ["owner_id"],
+        where: {
+          is_archived: false,
+          sales_status: {
+            not: "contracted",
+          },
+          ...(companyCreatedAtRange && {
+            created_at: companyCreatedAtRange,
+          }),
+        },
+        _count: {
+          _all: true,
+        },
+      }),
+
+      // 담당자 연락처
+      prisma.company_contacts.findMany({
+        where: {
+          company: {
+            is_archived: false,
+          },
+
+          ...(dashboardMonthRange && {
+            created_at: dashboardMonthRange,
+          }),
+        },
+        select: {
+          company: {
             select: {
-              id: true,
-              _count: {
-                select: {
-                  company_contacts: true,
-                },
-              },
+              owner_id: true,
             },
           },
         },
       }),
 
-      // 선택한 기간의 콜 수
+      // 선택 기간의 콜 수
       prisma.contact_schedules.groupBy({
         by: ["completed_by"],
         where: {
@@ -161,18 +252,20 @@ export async function GET(request: NextRequest) {
             not: null,
           },
 
-          completed_at: {
-            gte: startDate,
-            lt: endDate,
-          },
+          ...(startDate &&
+            endDate && {
+              completed_at: {
+                gte: startDate,
+                lt: endDate,
+              },
+            }),
         },
-
         _count: {
           _all: true,
         },
       }),
 
-      // 선택한 기간에 계약되었으며 현재도 유지 중인 계약 수
+      // 선택 기간에 계약되었으며 현재도 유지 중인 계약 수
       prisma.companies.groupBy({
         by: ["contract_owner_id"],
         where: {
@@ -183,17 +276,31 @@ export async function GET(request: NextRequest) {
             not: null,
           },
 
-          contracted_at: {
-            gte: startDate,
-            lt: endDate,
-          },
+          ...(startDate &&
+            endDate && {
+              contracted_at: {
+                gte: startDate,
+                lt: endDate,
+              },
+            }),
         },
-
         _count: {
           _all: true,
         },
       }),
     ]);
+
+    const companyCountMap = new Map(
+      companyGroups.map((group) => [group.owner_id, group._count._all] as const),
+    );
+
+    const contactCountMap = new Map<string, number>();
+
+    contacts.forEach((contact) => {
+      const ownerId = contact.company.owner_id;
+
+      contactCountMap.set(ownerId, (contactCountMap.get(ownerId) ?? 0) + 1);
+    });
 
     const callCountMap = new Map(
       callGroups.flatMap((group) =>
@@ -208,34 +315,22 @@ export async function GET(request: NextRequest) {
     );
 
     const items = salesUsers
-      .map((user) => {
-        const companies = user.companies_companies_owner_idTousers;
+      .map((user) => ({
+        userId: user.id,
+        name: user.name,
 
-        const contactCount = companies.reduce(
-          (total, company) => total + company._count.company_contacts,
-          0,
-        );
-
-        return {
-          userId: user.id,
-          name: user.name,
-
-          // 현재 보유 현황
-          companyCount: companies.length,
-          contactCount,
-
-          // 선택 기간 실적
-          callCount: callCountMap.get(user.id) ?? 0,
-          contractCount: contractCountMap.get(user.id) ?? 0,
-        };
-      })
+        companyCount: companyCountMap.get(user.id) ?? 0,
+        contactCount: contactCountMap.get(user.id) ?? 0,
+        callCount: callCountMap.get(user.id) ?? 0,
+        contractCount: contractCountMap.get(user.id) ?? 0,
+      }))
       .sort((a, b) => {
-        // 1. 선택 기간 계약 건수 많은 순
+        // 1. 계약 건수 많은 순
         if (b.contractCount !== a.contractCount) {
           return b.contractCount - a.contractCount;
         }
 
-        // 2. 계약 건수가 같으면 선택 기간 콜 수 많은 순
+        // 2. 계약 건수가 같으면 콜 수 많은 순
         if (b.callCount !== a.callCount) {
           return b.callCount - a.callCount;
         }
@@ -251,6 +346,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
+        period: period ?? "custom",
         startDate: startDateString,
         endDate: endDateString,
         items,

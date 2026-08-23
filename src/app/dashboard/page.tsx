@@ -8,14 +8,12 @@ import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
 import { useDashboard } from "@/hooks/dashboard/useDashboard";
 import useUser from "@/hooks/user/useUser";
 import { DashboardDetailType } from "@/types/dashboard";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 export default function DashboardPage() {
   const [page, setPage] = useState(1);
 
   const [selectedDetail, setSelectedDetail] = useState<DashboardDetailType | null>(null);
-
-  const detailSectionRef = useRef<HTMLDivElement>(null);
 
   const { data: user } = useUser();
 
@@ -23,29 +21,10 @@ export default function DashboardPage() {
     userId: String(user?.id),
     page,
     pageSize: DEFAULT_PAGE_SIZE,
+    mode: "today",
   });
 
-  useEffect(() => {
-    if (!selectedDetail) {
-      return;
-    }
-
-    detailSectionRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, [selectedDetail]);
-
   const handleSelectDetail = (type: DashboardDetailType) => {
-    if (selectedDetail === type) {
-      detailSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-
-      return;
-    }
-
     setSelectedDetail(type);
   };
 
@@ -55,6 +34,7 @@ export default function DashboardPage() {
 
       <DashboardStats
         dashboard={dashboard}
+        mode="today"
         selectedDetail={selectedDetail}
         onSelectDetail={handleSelectDetail}
       />
@@ -62,16 +42,14 @@ export default function DashboardPage() {
       <TodayContactsSection
         contacts={dashboard?.todayContacts ?? []}
         page={page}
+        pageSize={DEFAULT_PAGE_SIZE}
+        totalCount={dashboard?.todayContactCount ?? 0}
         totalPages={dashboard?.totalPages ?? 0}
         onPageChange={setPage}
         isLoading={isLoading}
       />
 
-      {selectedDetail && (
-        <div ref={detailSectionRef} className="scroll-mt-6">
-          <DashboardDetailSection type={selectedDetail} />
-        </div>
-      )}
+      {selectedDetail && <DashboardDetailSection type={selectedDetail} period="today" />}
     </div>
   );
 }

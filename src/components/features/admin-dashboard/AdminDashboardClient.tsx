@@ -1,51 +1,44 @@
 "use client";
 
+import { AdminDashboardPeriod } from "@/types/admin-dashboard";
 import { DashboardDetailType } from "@/types/dashboard";
-import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+
 import AdminDashboardStats from "../admin/AdminDashboardStats";
 import DashboardDetailSection from "../dashboard/details/DashboardDetailSection";
-import AdminTodayContactsSection from "./AdminTodayContactsSection";
+import DashboardSalesPerformanceSection from "./DashboardSalesPerformanceSection";
 
-export default function AdminDashboardClient() {
+type Props = {
+  period: AdminDashboardPeriod;
+};
+
+export default function AdminDashboardClient({ period }: Props) {
+  const pathname = usePathname();
+
   const [selectedDetail, setSelectedDetail] = useState<DashboardDetailType | null>(null);
 
-  const detailSectionRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    if (!selectedDetail) {
-      return;
-    }
-
-    detailSectionRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, [selectedDetail]);
+    setSelectedDetail(null);
+  }, [pathname]);
 
   const handleSelectDetail = (type: DashboardDetailType) => {
-    if (selectedDetail === type) {
-      detailSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-
-      return;
-    }
-
     setSelectedDetail(type);
   };
 
   return (
     <div className="space-y-10">
-      <AdminDashboardStats selectedDetail={selectedDetail} onSelectDetail={handleSelectDetail} />
-
-      <AdminTodayContactsSection />
+      <AdminDashboardStats
+        period={period}
+        selectedDetail={selectedDetail}
+        onSelectDetail={handleSelectDetail}
+      />
 
       {selectedDetail && (
-        <div ref={detailSectionRef} className="scroll-mt-6">
-          <DashboardDetailSection type={selectedDetail} scope="all" />
-        </div>
+        <DashboardDetailSection type={selectedDetail} scope="all" period={period} />
       )}
+
+      <DashboardSalesPerformanceSection period={period} />
     </div>
   );
 }

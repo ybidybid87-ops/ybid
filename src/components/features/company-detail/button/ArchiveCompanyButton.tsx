@@ -18,7 +18,7 @@ export default function ArchiveCompanyButton({ companyId }: Props) {
 
     mutate(companyId, {
       onSuccess: () => {
-        router.push("/my-companies");
+        router.back();
       },
     });
   };

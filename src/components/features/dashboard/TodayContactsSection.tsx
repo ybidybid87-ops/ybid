@@ -3,14 +3,15 @@
 import AppPagination from "@/components/common/AppPagination";
 import FallbackMessage from "@/components/common/FallbackMessage";
 import Loading from "@/components/common/Loading";
-import { useScrollToTopOnPageChange } from "@/hooks/common/useScrollToTopOnPageChange";
+import { getDescendingListNumber } from "@/lib/utils";
 import { DashboardTodayContact } from "@/types/dashboard";
-import { useRef } from "react";
 import TodayContactCard from "./TodayContactCard";
 
 type Props = {
   contacts: DashboardTodayContact[];
   page: number;
+  pageSize: number;
+  totalCount: number;
   totalPages: number;
   onPageChange: (page: number) => void;
   isLoading: boolean;
@@ -19,16 +20,14 @@ type Props = {
 export default function TodayContactsSection({
   contacts,
   page,
+  pageSize,
+  totalCount,
   totalPages,
   onPageChange,
   isLoading,
 }: Props) {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useScrollToTopOnPageChange(sectionRef, page);
-
   return (
-    <section ref={sectionRef} className="scroll-mt-6 space-y-6">
+    <section className="space-y-6">
       <h2 className="text-h2 font-bold">오늘 연락해야 할 업체</h2>
 
       {isLoading ? (
@@ -38,8 +37,17 @@ export default function TodayContactsSection({
       ) : (
         <>
           <div className="space-y-4">
-            {contacts.map((contact) => (
-              <TodayContactCard key={contact.id} contact={contact} />
+            {contacts.map((contact, index) => (
+              <TodayContactCard
+                key={contact.id}
+                contact={contact}
+                number={getDescendingListNumber({
+                  totalCount,
+                  page,
+                  pageSize,
+                  index,
+                })}
+              />
             ))}
           </div>
 

@@ -1,9 +1,9 @@
 import PageHeader from "@/components/common/PageHeader";
 import { getUser } from "@/services/actions/user/user.api";
 import { redirect } from "next/navigation";
-import SalesPerformanceSection from "./SalesPerformanceSection";
+import AdminDashboardClient from "./AdminDashboardClient";
 
-export default async function AdminPageContent() {
+export default async function MonthlyDashboardPageContent() {
   const user = await getUser();
 
   if (!user || !["admin", "leader"].includes(user.role)) {
@@ -12,12 +12,9 @@ export default async function AdminPageContent() {
 
   return (
     <div className="space-y-10">
-      <PageHeader
-        title="팀원별 현황"
-        description="기간별 팀원의 담당 현황과 영업 실적을 확인합니다."
-      />
+      <PageHeader title="당월 대시보드" description="이번 달 전체 직원의 영업 현황을 확인합니다." />
 
-      <SalesPerformanceSection />
+      <AdminDashboardClient period="month" />
     </div>
   );
 }

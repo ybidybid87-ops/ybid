@@ -11,24 +11,28 @@ export type DashboardTodayContact = {
   };
 };
 
+export type DashboardMode = "today" | "management";
+
+export type DashboardParams = {
+  userId: string;
+  page: number;
+  pageSize: number;
+  mode?: DashboardMode;
+};
+
 export type DashboardResponse = {
   myCompanyCount: number;
   todayContactCount: number;
   overdueContactCount: number;
-  contractedThisMonthCount: number;
-
+  contractCount: number;
   interestLevelCounts: {
     high: number;
     medium: number;
     low: number;
   };
-
   todayContacts: DashboardTodayContact[];
-
   page: number;
-
   pageSize: number;
-
   totalPages: number;
 };
 
@@ -48,6 +52,8 @@ export type DashboardResponse = {
 
 export type DashboardDetailScope = "me" | "all";
 
+export type DashboardDetailPeriod = "today" | "month" | "all";
+
 export type DashboardDetailType =
   | "companies"
   | "contact-schedules"
@@ -57,9 +63,12 @@ export type DashboardDetailType =
   | "interest-medium"
   | "interest-low";
 
+export type DashboardPeriod = "today" | "month" | "all";
+
 export type DashboardDetailParams = {
   type: DashboardDetailType;
   scope?: DashboardDetailScope;
+  period?: DashboardDetailPeriod;
   startDate?: string;
   endDate?: string;
   page: number;

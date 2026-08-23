@@ -126,11 +126,15 @@ export function parseKoreaDateTime(date: string) {
 
 // endDate를 포함한 조회에서 사용할 다음 날 00:00
 export function getNextKoreaDateTime(date: string) {
-  const parsed = parseKoreaDateTime(date);
+  const [year, month, day] = date.split("-").map(Number);
 
-  parsed.setDate(parsed.getDate() + 1);
+  const nextDate = new Date(Date.UTC(year, month - 1, day + 1));
 
-  return parsed;
+  const nextYear = nextDate.getUTCFullYear();
+  const nextMonth = String(nextDate.getUTCMonth() + 1).padStart(2, "0");
+  const nextDay = String(nextDate.getUTCDate()).padStart(2, "0");
+
+  return parseKoreaDateTime(`${nextYear}-${nextMonth}-${nextDay}`);
 }
 
 // 어제 문자열 함수
@@ -154,5 +158,18 @@ export function getFullThisMonthDateRange(): DateRange {
       lastDayOfThisMonth.getMonth() + 1,
       lastDayOfThisMonth.getDate(),
     ),
+  };
+}
+
+// 한국 시간 기준 오늘 00:00 ~ 내일 00:00 범위
+export function getTodayRange() {
+  const today = getKoreaDateKey(new Date());
+
+  const startDate = parseKoreaDateTime(today);
+  const endDate = getNextKoreaDateTime(today);
+
+  return {
+    startDate,
+    endDate,
   };
 }

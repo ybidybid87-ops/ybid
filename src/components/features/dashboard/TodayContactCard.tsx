@@ -11,35 +11,42 @@ import Link from "next/link";
 
 type Props = {
   contact: DashboardTodayContact;
+  number: number;
 };
 
-export default function TodayContactCard({ contact }: Props) {
+export default function TodayContactCard({ contact, number }: Props) {
   const company = contact.companies;
   const primaryContact = company.company_contacts[0];
 
   return (
     <Card>
       <CardContent className="flex items-center justify-between p-5">
-        <div>
-          <div className="mb-2 flex items-center gap-2">
-            <Badge className={getInterestBadgeStyle(company.interest_level)}>
-              {company.interest_level === "high"
-                ? "관심도 상"
-                : company.interest_level === "medium"
-                  ? "관심도 중"
-                  : "관심도 하"}
-            </Badge>
+        <div className="flex items-start gap-4">
+          <span className="mt-1 min-w-8 text-center text-sm font-medium text-muted-foreground">
+            {number}
+          </span>
 
-            <h3 className="text-lg font-semibold">{company.name}</h3>
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <Badge className={getInterestBadgeStyle(company.interest_level)}>
+                {company.interest_level === "high"
+                  ? "관심도 상"
+                  : company.interest_level === "medium"
+                    ? "관심도 중"
+                    : "관심도 하"}
+              </Badge>
+
+              <h3 className="text-lg font-semibold">{company.name}</h3>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              담당자: {primaryContact?.name ?? "-"} / {primaryContact?.phone ?? "-"}
+            </p>
+
+            <p className="text-sm text-muted-foreground">
+              다음 연락일: {formatDate(contact.scheduled_at)}
+            </p>
           </div>
-
-          <p className="text-sm text-muted-foreground">
-            담당자: {primaryContact?.name ?? "-"} / {primaryContact?.phone ?? "-"}
-          </p>
-
-          <p className="text-sm text-muted-foreground">
-            다음 연락일: {formatDate(contact.scheduled_at)}
-          </p>
         </div>
 
         <div className="flex gap-2">

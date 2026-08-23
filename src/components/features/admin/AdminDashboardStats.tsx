@@ -1,23 +1,27 @@
 "use client";
 
 import useAdminDashboardStats from "@/hooks/admin/useAdminDashboardStats";
+import { AdminDashboardPeriod } from "@/types/admin-dashboard";
 import { DashboardDetailType } from "@/types/dashboard";
 import { BriefcaseBusiness, User, UserRound, Users } from "lucide-react";
 import DashboardInterestCard from "../dashboard/DashboardInterestCard";
 import DashboardStatCard from "../dashboard/DashboardStatCard";
 
 type Props = {
+  period: AdminDashboardPeriod;
   selectedDetail?: DashboardDetailType | null;
   onSelectDetail?: (type: DashboardDetailType) => void;
 };
 
-export default function AdminDashboardStats({ selectedDetail, onSelectDetail }: Props) {
-  const { data } = useAdminDashboardStats();
+export default function AdminDashboardStats({ period, selectedDetail, onSelectDetail }: Props) {
+  const { data } = useAdminDashboardStats(period);
+
+  const isAll = period === "all";
 
   const stats = [
     {
       type: "companies" as const,
-      title: "전체 업체 수",
+      title: isAll ? "전체 업체 수" : "이번 달 업체 수",
       count: data?.companyCount ?? 0,
       icon: Users,
       color: "text-blue-400",
@@ -38,8 +42,8 @@ export default function AdminDashboardStats({ selectedDetail, onSelectDetail }: 
     },
     {
       type: "contracts" as const,
-      title: "이번 달 계약",
-      count: data?.contractedThisMonthCount ?? 0,
+      title: isAll ? "총 계약" : "이번 달 계약",
+      count: data?.contractCount ?? 0,
       icon: BriefcaseBusiness,
       color: "text-emerald-400",
     },

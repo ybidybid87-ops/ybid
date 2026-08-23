@@ -12,9 +12,9 @@ export default async function AdminDashboardPageContent() {
 
   return (
     <div className="space-y-10">
-      <PageHeader title="전체 대시보드" description="전체 직원의 영업 현황을 확인합니다." />
+      <PageHeader title="관리자 대시보드" description="전체 누적 영업 현황을 확인합니다." />
 
-      <AdminDashboardClient />
+      <AdminDashboardClient period="all" />
     </div>
   );
 }

@@ -2,18 +2,13 @@
 
 import AppPagination from "@/components/common/AppPagination";
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
-import { useScrollToTopOnPageChange } from "@/hooks/common/useScrollToTopOnPageChange";
 import { useDashboardDetails } from "@/hooks/dashboard/useDashboardDetails";
 import { getTodayDateString } from "@/lib/date";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import DashboardDetailTable from "../dashboard/details/DashboardDetailTable";
 
 export default function AdminTodayContactsSection() {
   const [page, setPage] = useState(1);
-
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useScrollToTopOnPageChange(sectionRef, page);
 
   const [today] = useState(() => getTodayDateString());
 
@@ -32,7 +27,7 @@ export default function AdminTodayContactsSection() {
   const { data, isFetching } = useDashboardDetails(params);
 
   return (
-    <section ref={sectionRef} className="space-y-6">
+    <section className="space-y-6">
       <div>
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-bold">오늘 연락해야 할 업체</h2>
@@ -51,6 +46,9 @@ export default function AdminTodayContactsSection() {
         items={data?.items ?? []}
         type="contact-schedules"
         scope="all"
+        page={page}
+        pageSize={DEFAULT_PAGE_SIZE}
+        totalCount={data?.totalCount ?? 0}
         isLoading={isFetching}
       />
 

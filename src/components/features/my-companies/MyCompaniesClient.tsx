@@ -14,11 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
-import { useScrollToTopOnPageChange } from "@/hooks/common/useScrollToTopOnPageChange";
 import useCompanies from "@/hooks/companies/useCompanies";
 import useUser from "@/hooks/user/useUser";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 
 type Props = {
   ownerId?: string;
@@ -36,10 +35,6 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
   const [region, setRegion] = useState("all");
 
   const targetOwnerId = ownerId ?? user?.id;
-
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useScrollToTopOnPageChange(sectionRef, page);
 
   const params = useMemo(
     () => ({
@@ -80,7 +75,7 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
   }
 
   return (
-    <div ref={sectionRef} className="space-y-6">
+    <div className="space-y-6">
       <Card className="rounded-2xl border border-gray-100 shadow-sm">
         <CardContent className="space-y-4 p-6">
           <div className="flex gap-3">
@@ -154,7 +149,13 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
         </CardContent>
       </Card>
 
-      <CompanyTable companies={data?.companies ?? []} isLoading={isCompaniesFetching} />
+      <CompanyTable
+        companies={data?.companies ?? []}
+        page={page}
+        pageSize={DEFAULT_PAGE_SIZE}
+        totalCount={data?.totalCount ?? 0}
+        isLoading={isCompaniesFetching}
+      />
 
       <AppPagination page={page} totalPages={data?.totalPages ?? 1} onPageChange={setPage} />
     </div>
