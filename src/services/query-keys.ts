@@ -78,4 +78,7 @@ export const adminKeys = {
 
   dashboardStats: (period: AdminDashboardPeriod) =>
     [...adminKeys.all, "dashboard-stats", period] as const,
+
+  dashboardSalesPerformance: (period: AdminDashboardPeriod) =>
+    [...adminKeys.all, "dashboard-sales-performance", period] as const,
 };

@@ -14,8 +14,11 @@ export type AdminSalesPerformanceItem = {
   contractCount: number;
 };
 
+export type AdminSalesPerformancePeriod = "all" | "month" | "custom";
+
 export type AdminSalesPerformanceResponse = {
-  startDate: string;
-  endDate: string;
+  period: AdminSalesPerformancePeriod;
+  startDate: string | null;
+  endDate: string | null;
   items: AdminSalesPerformanceItem[];
 };
