@@ -112,4 +112,8 @@ export type CompanySummary = {
   teams: Tables<"teams"> | null;
 
   contact_schedules: Tables<"contact_schedules">[];
+
+  _count: {
+    contact_histories: number;
+  };
 };
