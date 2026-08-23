@@ -27,6 +27,9 @@ function isValidDate(date: string) {
     parsedDate.getUTCFullYear() === year &&
     parsedDate.getUTCMonth() + 1 === month &&
     parsedDate.getUTCDate() === day
+    parsedDate.getUTCFullYear() === year &&
+    parsedDate.getUTCMonth() + 1 === month &&
+    parsedDate.getUTCDate() === day
   );
 }
 
