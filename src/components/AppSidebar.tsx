@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, ChartNoAxesCombined, LayoutDashboard, Users } from "lucide-react";
+import { Building2, CalendarDays, ChartNoAxesCombined, LayoutDashboard, Users } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -39,7 +39,12 @@ const salesMenus = [
 
 const adminMenus = [
   {
-    title: "전체 대시보드",
+    title: "당월 대시보드",
+    url: "/admin/monthly-dashboard",
+    icon: CalendarDays,
+  },
+  {
+    title: "관리자 대시보드",
     url: "/admin/dashboard",
     icon: ChartNoAxesCombined,
   },

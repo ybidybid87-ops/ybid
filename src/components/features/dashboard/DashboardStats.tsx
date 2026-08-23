@@ -1,15 +1,21 @@
-import { DashboardDetailType, DashboardResponse } from "@/types/dashboard";
+import { DashboardDetailType, DashboardMode, DashboardResponse } from "@/types/dashboard";
 import { BriefcaseBusiness, User, UserRound, Users } from "lucide-react";
 import DashboardInterestCard from "./DashboardInterestCard";
 import DashboardStatCard from "./DashboardStatCard";
 
 type Props = {
   dashboard?: DashboardResponse;
+  mode?: DashboardMode;
   selectedDetail?: DashboardDetailType | null;
   onSelectDetail?: (type: DashboardDetailType) => void;
 };
 
-export default function DashboardStats({ dashboard, selectedDetail, onSelectDetail }: Props) {
+export default function DashboardStats({
+  dashboard,
+  mode = "today",
+  selectedDetail,
+  onSelectDetail,
+}: Props) {
   const stats = [
     {
       type: "companies" as const,
@@ -34,8 +40,8 @@ export default function DashboardStats({ dashboard, selectedDetail, onSelectDeta
     },
     {
       type: "contracts" as const,
-      title: "이번 달 계약",
-      count: dashboard?.contractedThisMonthCount ?? 0,
+      title: mode === "management" ? "이번 달 계약" : "오늘 계약",
+      count: dashboard?.contractCount ?? 0,
       icon: BriefcaseBusiness,
       color: "text-emerald-400",
     },

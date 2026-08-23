@@ -1,4 +1,5 @@
-import { DashboardDetailParams } from "@/types/dashboard";
+import { AdminDashboardPeriod } from "@/types/admin-dashboard";
+import { DashboardDetailParams, DashboardParams } from "@/types/dashboard";
 
 export const userKeys = {
   all: ["user"] as const,
@@ -47,8 +48,7 @@ export const contractKeys = {
 export const dashboardKeys = {
   all: ["dashboard"] as const,
 
-  summary: (params: { userId: string; page: number; pageSize: number }) =>
-    [...dashboardKeys.all, "summary", params] as const,
+  summary: (params: DashboardParams) => [...dashboardKeys.all, "summary", params] as const,
 
   details: () => [...dashboardKeys.all, "details"] as const,
 
@@ -75,5 +75,9 @@ export const adminKeys = {
   salesPerformance: (startDate: string, endDate: string) =>
     [...adminKeys.all, "sales-performance", startDate, endDate] as const,
 
-  dashboardStats: () => [...adminKeys.all, "dashboard-stats"] as const,
+  dashboardStats: (period: AdminDashboardPeriod) =>
+    [...adminKeys.all, "dashboard-stats", period] as const,
+
+  dashboardSalesPerformance: (period: AdminDashboardPeriod) =>
+    [...adminKeys.all, "dashboard-sales-performance", period] as const,
 };

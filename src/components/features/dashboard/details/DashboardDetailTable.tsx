@@ -1,9 +1,11 @@
 "use client";
 
 import Loading from "@/components/common/Loading";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { INTEREST_LEVEL_LABELS } from "@/constants/businessData";
 import { getKoreaDateKey } from "@/lib/date";
+import { getDescendingListNumber, getInterestBadgeStyle } from "@/lib/utils";
 import { DashboardDetailItem, DashboardDetailScope, DashboardDetailType } from "@/types/dashboard";
 import Link from "next/link";
 
@@ -11,10 +13,21 @@ type Props = {
   items: DashboardDetailItem[];
   type: DashboardDetailType;
   scope?: DashboardDetailScope;
+  page: number;
+  pageSize: number;
+  totalCount: number;
   isLoading?: boolean;
 };
 
-export default function DashboardDetailTable({ items, type, scope, isLoading = false }: Props) {
+export default function DashboardDetailTable({
+  items,
+  type,
+  scope,
+  page,
+  pageSize,
+  totalCount,
+  isLoading = false,
+}: Props) {
   const showOwner = scope === "all";
   if (isLoading && items.length === 0) {
     return <Loading />;
@@ -39,6 +52,7 @@ export default function DashboardDetailTable({ items, type, scope, isLoading = f
       <table className="w-full text-sm">
         <thead className="bg-muted/50">
           <tr className="border-b">
+            <th className="w-16 px-4 py-3 text-center font-medium">번호</th>
             <th className="px-4 py-3 text-left font-medium">업체명</th>
 
             {showOwner && <th className="px-4 py-3 text-left font-medium">담당 직원</th>}
@@ -61,6 +75,14 @@ export default function DashboardDetailTable({ items, type, scope, isLoading = f
               key={`${item.companyId}-${item.scheduledAt ?? item.contractedAt ?? index}`}
               className="border-b last:border-b-0"
             >
+              <td className="px-4 py-3 text-center text-muted-foreground">
+                {getDescendingListNumber({
+                  totalCount,
+                  page,
+                  pageSize,
+                  index,
+                })}
+              </td>
               <td className="px-4 py-3">
                 <Link href={`/companies/${item.companyId}`} className="font-medium hover:underline">
                   {item.companyName}
@@ -78,7 +100,11 @@ export default function DashboardDetailTable({ items, type, scope, isLoading = f
                 </td>
               )}
 
-              <td className="px-4 py-3 pl-7">{INTEREST_LEVEL_LABELS[item.interestLevel]}</td>
+              <td className="px-4 py-3">
+                <Badge className={getInterestBadgeStyle(item.interestLevel)}>
+                  {INTEREST_LEVEL_LABELS[item.interestLevel]}
+                </Badge>
+              </td>
 
               <td className="px-4 py-3">{item.primaryContact?.name ?? "-"}</td>
 

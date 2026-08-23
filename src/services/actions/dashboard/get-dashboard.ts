@@ -2,24 +2,21 @@ import { fetcher } from "@/services/fetcher";
 import {
   DashboardDetailParams,
   DashboardDetailResponse,
+  DashboardParams,
   DashboardResponse,
 } from "@/types/dashboard";
-
-type DashboardParams = {
-  userId: string;
-  page: number;
-  pageSize: number;
-};
 
 export async function getDashboard({
   userId,
   page,
   pageSize,
+  mode = "today",
 }: DashboardParams): Promise<DashboardResponse> {
   const searchParams = new URLSearchParams({
     userId,
     page: String(page),
     pageSize: String(pageSize),
+    mode,
   });
 
   return fetcher(`/api/dashboard?${searchParams.toString()}`);
@@ -28,6 +25,7 @@ export async function getDashboard({
 export async function getDashboardDetails({
   type,
   scope = "me",
+  period,
   startDate,
   endDate,
   page,
@@ -39,6 +37,10 @@ export async function getDashboardDetails({
     page: String(page),
     pageSize: String(pageSize),
   });
+
+  if (period) {
+    searchParams.set("period", period);
+  }
 
   if (startDate) {
     searchParams.set("startDate", startDate);

@@ -4,7 +4,6 @@ import AppPagination from "@/components/common/AppPagination";
 import DateRangeFilter from "@/components/common/DateRangeFilter";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
-import { useScrollToTopOnPageChange } from "@/hooks/common/useScrollToTopOnPageChange";
 import { useDashboardDetails } from "@/hooks/dashboard/useDashboardDetails";
 import {
   DateRange,
@@ -13,13 +12,19 @@ import {
   getTodayDateString,
   getYesterdayDateString,
 } from "@/lib/date";
-import { DashboardDetailScope, DashboardDetailType } from "@/types/dashboard";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  DashboardDetailPeriod,
+  DashboardDetailScope,
+  DashboardDetailType,
+  DashboardPeriod,
+} from "@/types/dashboard";
+import { useEffect, useMemo, useState } from "react";
 import DashboardDetailTable from "./DashboardDetailTable";
 
 type Props = {
   type: DashboardDetailType;
   scope?: DashboardDetailScope;
+  period?: DashboardPeriod;
 };
 
 const DETAIL_INFO: Record<
@@ -65,7 +70,10 @@ const DETAIL_INFO: Record<
   },
 };
 
-function getInitialDateRange(type: DashboardDetailType): DateRange | null {
+function getInitialDateRange(
+  type: DashboardDetailType,
+  period?: DashboardDetailPeriod,
+): DateRange | null {
   if (type === "contact-schedules") {
     const today = getTodayDateString();
 
@@ -76,22 +84,29 @@ function getInitialDateRange(type: DashboardDetailType): DateRange | null {
   }
 
   if (type === "contracts") {
-    return getThisMonthDateRange();
+    if (period === "today") {
+      const today = getTodayDateString();
+
+      return {
+        startDate: today,
+        endDate: today,
+      };
+    }
+
+    if (period === "month") {
+      return getThisMonthDateRange();
+    }
   }
 
   return null;
 }
 
-export default function DashboardDetailSection({ type, scope = "me" }: Props) {
+export default function DashboardDetailSection({ type, scope = "me", period }: Props) {
   const [page, setPage] = useState(1);
 
   const [selectedRange, setSelectedRange] = useState<DateRange | null>(() =>
-    getInitialDateRange(type),
+    getInitialDateRange(type, period),
   );
-
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useScrollToTopOnPageChange(sectionRef, page);
 
   /*
    * 다른 카드를 선택하면
@@ -99,19 +114,20 @@ export default function DashboardDetailSection({ type, scope = "me" }: Props) {
    */
   useEffect(() => {
     setPage(1);
-    setSelectedRange(getInitialDateRange(type));
-  }, [type]);
+    setSelectedRange(getInitialDateRange(type, period));
+  }, [type, period]);
 
   const params = useMemo(
     () => ({
       type,
       scope,
+      period,
       startDate: selectedRange?.startDate,
       endDate: selectedRange?.endDate,
       page,
       pageSize: DEFAULT_PAGE_SIZE,
     }),
-    [type, scope, selectedRange, page],
+    [type, scope, period, selectedRange, page],
   );
 
   const { data, isFetching } = useDashboardDetails(params);
@@ -157,7 +173,7 @@ export default function DashboardDetailSection({ type, scope = "me" }: Props) {
   };
 
   return (
-    <section ref={sectionRef} className="scroll-mt-6 space-y-6">
+    <section className="space-y-6">
       <div>
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-bold">{detailTitle}</h2>
@@ -223,6 +239,9 @@ export default function DashboardDetailSection({ type, scope = "me" }: Props) {
         items={data?.items ?? []}
         type={type}
         scope={scope}
+        page={page}
+        pageSize={DEFAULT_PAGE_SIZE}
+        totalCount={data?.totalCount ?? 0}
         isLoading={isFetching}
       />
 

@@ -13,6 +13,7 @@ export default function MyCompaniesPage() {
     userId: String(user?.id),
     page: 1,
     pageSize: DEFAULT_PAGE_SIZE,
+    mode: "management",
   });
   return (
     <div className="space-y-10">
@@ -21,7 +22,7 @@ export default function MyCompaniesPage() {
         description="내가 담당하고 있는 업체 목록을 확인하고 관리할 수 있습니다."
       />
 
-      <DashboardStats dashboard={dashboard} />
+      <DashboardStats dashboard={dashboard} mode="management" />
 
       <MyCompaniesClient />
     </div>
