@@ -111,13 +111,11 @@ export async function GET(request: NextRequest) {
             sort_order: "asc",
           },
         },
-
         business_licenses: {
           orderBy: {
             created_at: "asc",
           },
         },
-
         users_companies_owner_idTousers: {
           select: {
             id: true,
@@ -126,12 +124,15 @@ export async function GET(request: NextRequest) {
             role: true,
           },
         },
-
         teams: true,
-
         contact_schedules: {
           orderBy: {
             scheduled_at: "asc",
+          },
+        },
+        _count: {
+          select: {
+            contact_histories: true,
           },
         },
       },

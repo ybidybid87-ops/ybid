@@ -14,25 +14,31 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
+import { EditableContactSchedule } from "@/components/common/buttons/EditContactScheduleButton";
+import useCreateContactSchedule from "@/hooks/contact-schedule/useCreateContactSchedule";
 import useUpdateContactSchedule from "@/hooks/contact-schedule/useUpdateContactSchedule";
 import { getInterestBadgeStyle } from "@/lib/utils";
-import { DashboardTodayContact } from "@/types/dashboard";
 import { format } from "date-fns";
+import Link from "next/link";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  contact: DashboardTodayContact;
+  contact: EditableContactSchedule;
 };
 
 export default function EditContactScheduleDialog({ open, onOpenChange, contact }: Props) {
-  const { mutate: updateMutation, isPending } = useUpdateContactSchedule();
+  const { mutate: updateMutation, isPending: isUpdating } = useUpdateContactSchedule();
+
+  const { mutate: createMutation, isPending: isCreating } = useCreateContactSchedule();
+
+  const isPending = isUpdating || isCreating;
 
   const company = contact.companies;
 
   const primaryContact = company.company_contacts[0];
 
-  const [scheduledAt, setScheduledAt] = useState(contact.scheduled_at.slice(0, 10));
+  const [scheduledAt, setScheduledAt] = useState(contact.scheduled_at?.slice(0, 10) ?? "");
   const [memo, setMemo] = useState("");
 
   useEffect(() => {
@@ -40,18 +46,39 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
       return;
     }
 
-    setScheduledAt(contact.scheduled_at.slice(0, 10));
+    setScheduledAt(contact.scheduled_at?.slice(0, 10) ?? "");
     setMemo("");
   }, [open, contact]);
 
-  const handleUpdate = () => {
-    updateMutation(
-      {
-        scheduleId: contact.id,
-        input: {
-          scheduledAt,
-          memo: memo || undefined,
+  const handleSave = () => {
+    if (!scheduledAt) {
+      return;
+    }
+
+    if (contact.id) {
+      updateMutation(
+        {
+          scheduleId: contact.id,
+          input: {
+            scheduledAt,
+            memo: memo || undefined,
+          },
         },
+        {
+          onSuccess: () => {
+            onOpenChange(false);
+          },
+        },
+      );
+
+      return;
+    }
+
+    createMutation(
+      {
+        companyId: contact.companies.id,
+        scheduledAt,
+        memo: memo || undefined,
       },
       {
         onSuccess: () => {
@@ -111,6 +138,10 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
               <p className="text-sm text-muted-foreground">
                 연락처 : {primaryContact?.phone ?? "-"}
               </p>
+
+              <p className="text-sm text-muted-foreground">
+                콜 수 : {company.contact_count ?? 0}회
+              </p>
             </div>
           </div>
 
@@ -167,14 +198,20 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
           </div> */}
 
           {/* 버튼 */}
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="outline" size="lg" onClick={() => onOpenChange(false)}>
-              취소
+          <div className="flex items-center justify-between pt-2">
+            <Button asChild variant="outline" size="lg">
+              <Link href={`/companies/${company.id}`}>업체 상세 보기</Link>
             </Button>
 
-            <Button size="lg" onClick={handleUpdate} disabled={isPending}>
-              저장
-            </Button>
+            <div className="flex gap-3">
+              <Button variant="outline" size="lg" onClick={() => onOpenChange(false)}>
+                취소
+              </Button>
+
+              <Button size="lg" onClick={handleSave} disabled={isPending || !scheduledAt}>
+                {isPending ? "저장 중..." : "저장"}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

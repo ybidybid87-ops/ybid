@@ -14,7 +14,6 @@ export type CreateContactScheduleRequest = {
   companyId: string;
   scheduledAt: string;
   memo?: string;
-  createdBy: string;
 };
 
 export type UpdateContactScheduleRequest = {

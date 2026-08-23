@@ -1,14 +1,25 @@
-// 일정변경 버튼
-
 "use client";
 
 import EditContactScheduleDialog from "@/components/features/contact-schedule/EditContactScheduleDialog";
 import { Button } from "@/components/ui/button";
-import { DashboardTodayContact } from "@/types/dashboard";
+import { InterestLevel } from "@/types/common";
+import { Tables } from "@/types/database.types";
 import { ComponentProps, useState } from "react";
 
+export type EditableContactSchedule = {
+  id?: string;
+  scheduled_at?: string;
+  companies: {
+    id: string;
+    name: string;
+    interest_level: InterestLevel;
+    company_contacts: Tables<"company_contacts">[];
+    contact_count?: number;
+  };
+};
+
 type Props = {
-  contact: DashboardTodayContact;
+  contact: EditableContactSchedule;
   className?: string;
   size?: ComponentProps<typeof Button>["size"];
 };

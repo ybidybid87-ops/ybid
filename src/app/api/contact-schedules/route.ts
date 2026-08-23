@@ -1,4 +1,7 @@
+// api/contact-schedules/route.ts
+
 import { parseKoreaDate } from "@/lib/date";
+import { getUser } from "@/services/actions/user/user.api";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
@@ -119,26 +122,64 @@ export async function GET(request: NextRequest) {
 
 type CreateScheduleRequest = {
   companyId: string;
-
   scheduledAt: string;
-
   memo?: string;
-
-  createdBy: string;
 };
 
 export async function POST(request: NextRequest) {
+  const authUser = await getUser();
+
+  if (!authUser) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Unauthorized",
+      },
+      {
+        status: 401,
+      },
+    );
+  }
+
   const body = (await request.json()) as CreateScheduleRequest;
+
+  if (!body.companyId || !body.scheduledAt) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "업체와 연락 예정일은 필수입니다.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  const existingSchedule = await prisma.contact_schedules.findFirst({
+    where: {
+      company_id: body.companyId,
+      completed: false,
+    },
+  });
+
+  if (existingSchedule) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "이미 등록된 연락 일정이 있습니다.",
+      },
+      {
+        status: 409,
+      },
+    );
+  }
 
   const schedule = await prisma.contact_schedules.create({
     data: {
       company_id: body.companyId,
-
       scheduled_at: parseKoreaDate(body.scheduledAt),
-
       memo: body.memo,
-
-      created_by: body.createdBy,
+      created_by: authUser.id,
     },
   });
 

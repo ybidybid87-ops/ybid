@@ -63,13 +63,13 @@ export default function CompanyTable({
               return (
                 <tr key={company.id} className="border-b last:border-b-0">
                   <td className="px-5 py-4 text-center text-muted-foreground">
-  {getDescendingListNumber({
-    totalCount,
-    page,
-    pageSize,
-    index,
-  })}
-</td>
+                    {getDescendingListNumber({
+                      totalCount,
+                      page,
+                      pageSize,
+                      index,
+                    })}
+                  </td>
                   <td className="px-5 py-4 font-semibold">{company.name}</td>
                   <td className="px-5 py-4">{company.ceo_name ?? "-"}</td>
                   <td className="px-5 py-4">{company.ceo_phone ?? "-"}</td>
@@ -99,23 +99,21 @@ export default function CompanyTable({
 
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-center gap-2">
-                      {nextSchedule && (
-                        <EditContactScheduleButton
-                          className="bg-primary text-primary-foreground hover:bg-primary/90"
-                          size="sm"
-                          contact={{
-                            id: nextSchedule.id,
-                            scheduled_at: nextSchedule.scheduled_at,
-                            companies: {
-                              id: company.id,
-                              name: company.name,
-                              interest_level: company.interest_level,
-                              company_contacts: company.company_contacts ?? [],
-                            },
-                          }}
-                        />
-                      )}
-
+                      <EditContactScheduleButton
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        size="sm"
+                        contact={{
+                          id: nextSchedule?.id,
+                          scheduled_at: nextSchedule?.scheduled_at,
+                          companies: {
+                            id: company.id,
+                            name: company.name,
+                            interest_level: company.interest_level,
+                            company_contacts: company.company_contacts ?? [],
+                            contact_count: company._count?.contact_histories ?? 0,
+                          },
+                        }}
+                      />
                       <Button asChild variant="outline" size="sm">
                         <Link href={`/companies/${company.id}`}>상세 보기</Link>
                       </Button>
