@@ -51,7 +51,7 @@ export default function SalesPerformanceTable({ items, isLoading = false }: Prop
               </TableHead>
 
               <TableHead colSpan={2} className="border-l text-center font-semibold">
-                현재 담당 현황
+                담당 현황
               </TableHead>
 
               <TableHead colSpan={2} className="border-l text-center font-semibold">

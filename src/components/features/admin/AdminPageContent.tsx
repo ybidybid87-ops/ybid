@@ -12,7 +12,10 @@ export default async function AdminPageContent() {
 
   return (
     <div className="space-y-10">
-      <PageHeader title="관리자" description="팀원의 영업 현황을 확인합니다." />
+      <PageHeader
+        title="팀원별 현황"
+        description="기간별 팀원의 담당 현황과 영업 실적을 확인합니다."
+      />
 
       <SalesPerformanceSection />
     </div>
