@@ -2,24 +2,21 @@ import { fetcher } from "@/services/fetcher";
 import {
   DashboardDetailParams,
   DashboardDetailResponse,
+  DashboardParams,
   DashboardResponse,
 } from "@/types/dashboard";
-
-type DashboardParams = {
-  userId: string;
-  page: number;
-  pageSize: number;
-};
 
 export async function getDashboard({
   userId,
   page,
   pageSize,
+  mode = "today",
 }: DashboardParams): Promise<DashboardResponse> {
   const searchParams = new URLSearchParams({
     userId,
     page: String(page),
     pageSize: String(pageSize),
+    mode,
   });
 
   return fetcher(`/api/dashboard?${searchParams.toString()}`);

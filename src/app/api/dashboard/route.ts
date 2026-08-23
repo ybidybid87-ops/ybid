@@ -1,7 +1,7 @@
 // app/api/dashboard/route.ts
 
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
-import { getToday, getTodayRange } from "@/lib/date";
+import { getMonthRange, getToday, getTodayRange } from "@/lib/date";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
@@ -9,6 +9,19 @@ export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("userId");
   const page = Number(request.nextUrl.searchParams.get("page")) || 1;
   const pageSize = Number(request.nextUrl.searchParams.get("pageSize")) || DEFAULT_PAGE_SIZE;
+  const mode = request.nextUrl.searchParams.get("mode") ?? "today";
+
+  if (mode !== "today" && mode !== "management") {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "올바른 대시보드 조회 방식이 아닙니다.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
 
   if (!userId || userId === "undefined") {
     return NextResponse.json(
@@ -39,6 +52,9 @@ export async function GET(request: NextRequest) {
   const todayDate = getToday();
 
   const { startDate: todayStart, endDate: todayEnd } = getTodayRange();
+  const { startDate: monthStart, endDate: monthEnd } = getMonthRange();
+
+  const isManagement = mode === "management";
 
   const companyWhere = {
     owner_id: user.id,
@@ -49,17 +65,20 @@ export async function GET(request: NextRequest) {
     interestLevelGroups,
     todayContactCount,
     overdueContactCount,
-    contractedTodayCount,
+    contractCount,
     todayContacts,
   ] = await Promise.all([
     prisma.companies.count({
       where: {
         ...companyWhere,
         is_archived: false,
-        created_at: {
-          gte: todayStart,
-          lt: todayEnd,
-        },
+
+        ...(!isManagement && {
+          created_at: {
+            gte: todayStart,
+            lt: todayEnd,
+          },
+        }),
       },
     }),
 
@@ -68,10 +87,13 @@ export async function GET(request: NextRequest) {
       where: {
         ...companyWhere,
         is_archived: false,
-        created_at: {
-          gte: todayStart,
-          lt: todayEnd,
-        },
+
+        ...(!isManagement && {
+          created_at: {
+            gte: todayStart,
+            lt: todayEnd,
+          },
+        }),
       },
       _count: {
         _all: true,
@@ -110,10 +132,15 @@ export async function GET(request: NextRequest) {
       where: {
         ...companyWhere,
         is_archived: false,
-        contracted_at: {
-          gte: todayStart,
-          lt: todayEnd,
-        },
+        contracted_at: isManagement
+          ? {
+              gte: monthStart,
+              lt: monthEnd,
+            }
+          : {
+              gte: todayStart,
+              lt: todayEnd,
+            },
       },
     }),
 
@@ -193,7 +220,7 @@ export async function GET(request: NextRequest) {
       interestLevelCounts,
       todayContactCount,
       overdueContactCount,
-      contractedTodayCount,
+      contractCount,
       todayContacts,
       page,
       pageSize,

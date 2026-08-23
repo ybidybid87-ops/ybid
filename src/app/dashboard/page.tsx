@@ -21,6 +21,7 @@ export default function DashboardPage() {
     userId: String(user?.id),
     page,
     pageSize: DEFAULT_PAGE_SIZE,
+    mode: "today",
   });
 
   const handleSelectDetail = (type: DashboardDetailType) => {
@@ -33,6 +34,7 @@ export default function DashboardPage() {
 
       <DashboardStats
         dashboard={dashboard}
+        mode="today"
         selectedDetail={selectedDetail}
         onSelectDetail={handleSelectDetail}
       />

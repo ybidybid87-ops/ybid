@@ -11,24 +11,28 @@ export type DashboardTodayContact = {
   };
 };
 
+export type DashboardMode = "today" | "management";
+
+export type DashboardParams = {
+  userId: string;
+  page: number;
+  pageSize: number;
+  mode?: DashboardMode;
+};
+
 export type DashboardResponse = {
   myCompanyCount: number;
   todayContactCount: number;
   overdueContactCount: number;
-  contractedTodayCount: number;
-
+  contractCount: number;
   interestLevelCounts: {
     high: number;
     medium: number;
     low: number;
   };
-
   todayContacts: DashboardTodayContact[];
-
   page: number;
-
   pageSize: number;
-
   totalPages: number;
 };
 
