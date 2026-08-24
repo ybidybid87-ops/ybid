@@ -135,6 +135,7 @@ export function toCompanyFormValues(company: CompanyDetail): CreateCompanyFormVa
     faxNumber: company.fax_number ?? "",
 
     contacts: company.company_contacts.map((contact) => ({
+      id: contact.id,
       name: contact.name ?? "",
       phone: contact.phone,
     })),

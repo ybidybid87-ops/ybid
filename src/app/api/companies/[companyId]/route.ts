@@ -1,4 +1,5 @@
-// api/companies/[companyId]/route.ts
+// app/api/companies/[companyId]/route.ts
+
 import { verifyCompanyPermission } from "@/lib/company-permission";
 import { parseKoreaDate } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
@@ -64,35 +65,68 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         ceo_phone: body.ceoPhone,
         fax_number: body.faxNumber,
         region: body.region,
-
         interest_level: body.interestLevel,
         sales_status: body.salesStatus,
         memo: body.memo,
-
         team_id: body.teamId,
       },
     });
 
+    // 담당자 연락처
     if ("contacts" in body) {
+      const contacts = body.contacts ?? [];
+
+      // 기존 연락처는 id가 존재하고,
+      // 새로 추가된 연락처는 id가 존재하지 않는다.
+      const existingContactIds = contacts
+        .map((contact) => contact.id)
+        .filter((id): id is string => Boolean(id));
+
+      // 수정 폼에서 제거된 기존 연락처 삭제
       await tx.company_contacts.deleteMany({
         where: {
           company_id: companyId,
+          ...(existingContactIds.length > 0 && {
+            id: {
+              notIn: existingContactIds,
+            },
+          }),
         },
       });
 
-      if (body.contacts && body.contacts.length > 0) {
-        await tx.company_contacts.createMany({
-          data: body.contacts.map((contact, index) => ({
+      for (const [index, contact] of contacts.entries()) {
+        if (contact.id) {
+          // 기존 연락처는 UPDATE하여 created_at을 유지한다.
+          await tx.company_contacts.updateMany({
+            where: {
+              id: contact.id,
+              company_id: companyId,
+            },
+            data: {
+              name: contact.name || null,
+              phone: contact.phone,
+              is_primary: index === 0,
+              sort_order: index,
+            },
+          });
+
+          continue;
+        }
+
+        // id가 없는 연락처만 신규 생성한다.
+        await tx.company_contacts.create({
+          data: {
             company_id: companyId,
             name: contact.name || null,
             phone: contact.phone,
             is_primary: index === 0,
             sort_order: index,
-          })),
+          },
         });
       }
     }
 
+    // 공사업 정보
     if (body.businessLicenses) {
       await tx.company_business_licenses.deleteMany({
         where: {
@@ -111,6 +145,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       });
     }
 
+    // 다음 연락 일정
     if ("contactSchedule" in body) {
       await tx.contact_schedules.deleteMany({
         where: {
@@ -193,7 +228,8 @@ export async function DELETE(_: NextRequest, context: RouteContext) {
   });
 
   // 휴지통 만들 경우 삭제 로직 빼고 보관으로
-  /*  await prisma.companies.update({
+  /*
+  await prisma.companies.update({
     where: {
       id: companyId,
     },
@@ -201,7 +237,8 @@ export async function DELETE(_: NextRequest, context: RouteContext) {
       is_archived: true,
       archived_at: new Date(),
     },
-  }); */
+  });
+  */
 
   return NextResponse.json({
     success: true,

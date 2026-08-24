@@ -23,8 +23,8 @@ export const businessLicenseSchema = z
 
 //담당자 스키마
 export const companyContactSchema = z.object({
+  id: z.string().optional(),
   name: z.string().optional(),
-
   phone: z
     .string()
     .min(1, "담당자 연락처를 입력해주세요.")
