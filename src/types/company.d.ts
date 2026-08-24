@@ -2,6 +2,7 @@ import { InterestLevel } from "./common";
 import { Tables } from "./database.types";
 
 export type CompanyContactInput = {
+  id?: string;
   name?: string | null;
   phone: string;
   isPrimary?: boolean;
