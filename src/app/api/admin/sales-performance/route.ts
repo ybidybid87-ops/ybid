@@ -168,20 +168,6 @@ export async function GET(request: NextRequest) {
       endDate = getNextKoreaDateTime(endDateString);
     }
 
-    /**
-     * period=month일 때만 담당자 연락처에 기간을 적용한다.
-     *
-     * 기존 /admin 팀원별 현황의 startDate/endDate 조회에서는
-     * 담당자 연락처는 현재 보유 현황을 유지한다.
-     */
-    const dashboardMonthRange =
-      period === "month" && startDate && endDate
-        ? {
-            gte: startDate,
-            lt: endDate,
-          }
-        : undefined;
-
     // 담당 업체 수에 적용할 업체 등록 기간
     const companyCreatedAtRange =
       startDate && endDate
@@ -222,16 +208,22 @@ export async function GET(request: NextRequest) {
         },
       }),
 
-      // 담당자 연락처
+      // 선택 기간에 등록된 현재 미계약 업체의 담당자 연락처
       prisma.company_contacts.findMany({
         where: {
           company: {
             is_archived: false,
+            sales_status: {
+              not: "contracted",
+            },
           },
-
-          ...(dashboardMonthRange && {
-            created_at: dashboardMonthRange,
-          }),
+          ...(startDate &&
+            endDate && {
+              created_at: {
+                gte: startDate,
+                lt: endDate,
+              },
+            }),
         },
         select: {
           company: {
@@ -242,16 +234,20 @@ export async function GET(request: NextRequest) {
         },
       }),
 
-      // 선택 기간의 콜 수
+      // 선택 기간에 완료 처리된 현재 미계약 업체의 콜
       prisma.contact_schedules.groupBy({
         by: ["completed_by"],
         where: {
           completed: true,
-
           completed_by: {
             not: null,
           },
-
+          companies: {
+            is_archived: false,
+            sales_status: {
+              not: "contracted",
+            },
+          },
           ...(startDate &&
             endDate && {
               completed_at: {
