@@ -15,6 +15,7 @@ import Link from "next/link";
 type Props = {
   items: AdminSalesPerformanceItem[];
   isLoading?: boolean;
+  mode?: "custom" | "month";
 };
 
 function getRankContent(rank: number) {
@@ -29,7 +30,11 @@ function getRankContent(rank: number) {
   return rank;
 }
 
-export default function SalesPerformanceTable({ items, isLoading = false }: Props) {
+export default function SalesPerformanceTable({
+  items,
+  isLoading = false,
+  mode = "custom",
+}: Props) {
   return (
     <Card className="relative overflow-hidden p-0">
       {isLoading && (
@@ -49,13 +54,12 @@ export default function SalesPerformanceTable({ items, isLoading = false }: Prop
               <TableHead rowSpan={2} className="align-middle">
                 이름
               </TableHead>
-
               <TableHead colSpan={2} className="border-l text-center font-semibold">
-                담당 현황
+                {mode === "month" ? "당월 담당 현황" : "선택 기간 담당 현황"}
               </TableHead>
 
               <TableHead colSpan={2} className="border-l text-center font-semibold">
-                선택 기간 실적
+                {mode === "month" ? "당월 실적" : "선택 기간 실적"}
               </TableHead>
             </TableRow>
 

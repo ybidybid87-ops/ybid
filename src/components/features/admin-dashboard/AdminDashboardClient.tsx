@@ -38,7 +38,7 @@ export default function AdminDashboardClient({ period }: Props) {
         <DashboardDetailSection type={selectedDetail} scope="all" period={period} />
       )}
 
-      <DashboardSalesPerformanceSection period={period} />
+      {period === "month" && <DashboardSalesPerformanceSection period={period} />}
     </div>
   );
 }
