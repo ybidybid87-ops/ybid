@@ -54,6 +54,27 @@ const EMPTY_VALUES: CreateCompanyFormValues = {
   ],
 };
 
+const getEmptyValues = (): CreateCompanyFormValues => ({
+  name: "",
+  ceoName: "",
+  ceoPhone: "",
+  region: "",
+  faxNumber: "",
+  contacts: [],
+  interestLevel: "medium",
+  salesStatus: "new",
+  scheduledAt: "",
+  memo: "",
+  businessLicenses: [
+    {
+      businessGroup: "",
+      businessType: "",
+      specialtyType: "",
+      isPrimary: true,
+    },
+  ],
+});
+
 export default function CompanyForm({ mode = "create" }: CompanyFormProps) {
   const router = useRouter();
   const params = useParams();
@@ -64,13 +85,19 @@ export default function CompanyForm({ mode = "create" }: CompanyFormProps) {
 
   const form = useForm<CreateCompanyFormValues>({
     resolver: zodResolver(createCompanySchema),
-    defaultValues: EMPTY_VALUES,
+    defaultValues: getEmptyValues(),
   });
 
   useEffect(() => {
+    if (mode === "create") {
+      form.reset(getEmptyValues());
+      return;
+    }
+
     if (!company) return;
+
     form.reset(toCompanyFormValues(company));
-  }, [company, form]);
+  }, [mode, company, form]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
