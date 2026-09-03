@@ -131,7 +131,7 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
 
               <SelectContent>
                 <SelectItem value="all">영업 상태 전체</SelectItem>
-                <SelectItem value="new">진행 중</SelectItem>
+                <SelectItem value="uncontracted">진행 중</SelectItem>
                 <SelectItem value="contracted">계약 완료</SelectItem>
               </SelectContent>
             </Select>
