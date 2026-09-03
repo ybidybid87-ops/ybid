@@ -2,30 +2,32 @@
 
 import DateRangeFilter from "@/components/common/DateRangeFilter";
 import useAdminSalesPerformance from "@/hooks/admin/useAdminSalesPerformance";
-import { DateRange, getThisMonthDateRange } from "@/lib/date";
-import { useState } from "react";
+import { DateRange, getThisYearDateRange } from "@/lib/date";
+import { useEffect, useState } from "react";
 import SalesPerformanceTable from "./SalesPerformanceTable";
 
 export default function SalesPerformanceSection() {
-  // 실제 API 조회에 사용되는 기간
-  const [selectedRange, setSelectedRange] = useState<DateRange>(() => getThisMonthDateRange());
+  const [selectedRange, setSelectedRange] = useState<DateRange>(() => getThisYearDateRange());
 
   const { data, isFetching, refetch } = useAdminSalesPerformance(
     selectedRange.startDate,
     selectedRange.endDate,
   );
 
+  // 팀원별 현황 페이지 진입 시 올해 기준으로 초기화 후 재조회
+  useEffect(() => {
+    setSelectedRange(getThisYearDateRange());
+  }, []);
+
   const handleSearch = (range: DateRange) => {
     const isSameRange =
       range.startDate === selectedRange.startDate && range.endDate === selectedRange.endDate;
 
-    // 현재 조회 중인 기간과 같다면 Query Key가 바뀌지 않으므로 직접 재조회
     if (isSameRange) {
       refetch();
       return;
     }
 
-    // 기간이 변경되면 Query Key가 변경되면서 자동으로 새로운 데이터를 조회
     setSelectedRange(range);
   };
 
