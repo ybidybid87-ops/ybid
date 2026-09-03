@@ -173,3 +173,13 @@ export function getTodayRange() {
     endDate,
   };
 }
+
+// 올해 1월 1일 ~ 오늘
+export function getThisYearDateRange(): DateRange {
+  const now = new Date();
+
+  return {
+    startDate: formatLocalDate(now.getFullYear(), 1, 1),
+    endDate: getTodayDateString(),
+  };
+}

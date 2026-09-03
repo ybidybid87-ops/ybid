@@ -43,9 +43,17 @@ export async function GET(request: NextRequest) {
       interest_level: interestLevel as InterestLevel,
     }),
 
-    ...(salesStatus && {
-      sales_status: salesStatus,
-    }),
+    ...(salesStatus === "uncontracted"
+      ? {
+          sales_status: {
+            not: "contracted",
+          },
+        }
+      : salesStatus
+        ? {
+            sales_status: salesStatus,
+          }
+        : {}),
 
     ...(region && {
       region,

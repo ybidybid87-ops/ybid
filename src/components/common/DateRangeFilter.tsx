@@ -6,6 +6,7 @@ import {
   getFullThisMonthDateRange,
   getLastMonthDateRange,
   getThisMonthDateRange,
+  getThisYearDateRange,
   getTodayDateString,
 } from "@/lib/date";
 import { useEffect, useState } from "react";
@@ -52,6 +53,16 @@ export default function DateRangeFilter({
       startDate: range.startDate,
       endDate: range.endDate > maxDate ? maxDate : range.endDate,
     };
+  };
+
+  const handleThisYear = () => {
+    const range = getRangeWithinMaxDate(getThisYearDateRange());
+
+    if (!range) {
+      return;
+    }
+
+    applyRange(range);
   };
 
   const handleThisMonth = () => {
@@ -101,6 +112,10 @@ export default function DateRangeFilter({
         </div>
 
         <div className="flex flex-wrap items-end gap-2">
+          <Button type="button" variant="outline" onClick={handleThisYear} disabled={isLoading}>
+            올해
+          </Button>
+
           <Button type="button" variant="outline" onClick={handleThisMonth} disabled={isLoading}>
             이번 달
           </Button>
