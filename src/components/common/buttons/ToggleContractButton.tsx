@@ -9,10 +9,18 @@ import ContractCompleteDialog from "../ContractCompleteDialog";
 type Props = {
   companyId: string;
   salesStatus: string;
+  companyCreatedAt: string | Date;
+  canSelectContractDate: boolean;
   className?: string;
 };
 
-export default function ToggleContractButton({ companyId, salesStatus, className }: Props) {
+export default function ToggleContractButton({
+  companyId,
+  salesStatus,
+  companyCreatedAt,
+  canSelectContractDate,
+  className,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   const isContracted = salesStatus === "contracted";
@@ -34,7 +42,13 @@ export default function ToggleContractButton({ companyId, salesStatus, className
       {isContracted ? (
         <ContractCancelDialog companyId={companyId} open={open} onOpenChange={setOpen} />
       ) : (
-        <ContractCompleteDialog companyId={companyId} open={open} onOpenChange={setOpen} />
+        <ContractCompleteDialog
+          companyId={companyId}
+          companyCreatedAt={companyCreatedAt}
+          open={open}
+          onOpenChange={setOpen}
+          canSelectContractDate={canSelectContractDate}
+        />
       )}
     </>
   );

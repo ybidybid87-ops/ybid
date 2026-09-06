@@ -30,30 +30,6 @@ type CompanyFormProps = {
   mode?: CompanyFormMode;
 };
 
-const EMPTY_VALUES: CreateCompanyFormValues = {
-  name: "",
-  ceoName: "",
-  ceoPhone: "",
-  region: "",
-  faxNumber: "",
-
-  contacts: [],
-
-  interestLevel: "medium",
-  salesStatus: "new",
-  scheduledAt: "",
-  memo: "",
-
-  businessLicenses: [
-    {
-      businessGroup: "",
-      businessType: "",
-      specialtyType: "",
-      isPrimary: true,
-    },
-  ],
-};
-
 const getEmptyValues = (): CreateCompanyFormValues => ({
   name: "",
   ceoName: "",

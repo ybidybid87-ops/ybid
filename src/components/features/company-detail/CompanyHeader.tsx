@@ -22,6 +22,8 @@ export default function CompanyHeader({ company }: Props) {
   const { data: me } = useUser();
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
 
+  const canSelectContractDate = me?.role === "admin" || me?.role === "leader";
+
   const nextSchedule = company.contact_schedules[0];
 
   const isOwner = me?.id === company.owner_id;
@@ -81,6 +83,8 @@ export default function CompanyHeader({ company }: Props) {
                   <ToggleContractButton
                     companyId={company.id}
                     salesStatus={company.sales_status}
+                    companyCreatedAt={company.created_at}
+                    canSelectContractDate={canSelectContractDate}
                     className="h-12 rounded-2xl px-6"
                   />
                 </>
