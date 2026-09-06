@@ -21,7 +21,7 @@ export default function EditCompanyPage() {
 
         <CardContent>
           <Suspense fallback={<Loading />}>
-            <CompanyForm mode="edit" />
+            <CompanyForm key="company-edit" mode="edit" />
           </Suspense>
         </CardContent>
       </Card>

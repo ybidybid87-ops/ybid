@@ -16,7 +16,7 @@ export default function NewCompanyPage() {
         </CardHeader>
         <CardContent>
           <Suspense>
-            <CompanyForm />
+            <CompanyForm key="company-create" mode="create" />
           </Suspense>
         </CardContent>
       </Card>
