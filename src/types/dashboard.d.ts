@@ -41,13 +41,13 @@ export type DashboardResponse = {
 /* 
 | type               | 조회 기준              | 날짜 필터 |
 | ------------------ | ------------------ | ----- |
-| `companies`        | 현재 내가 담당하는 모든 업체   | X     |
+| `companies`        | 조회 기간/범위의 미계약 업체   | X     |
 | `contact-schedules` | 선택 기간의 미완료 연락 일정   | O     |
 | `overdue-contacts` | 선택 기간 중 미완료된 지난 연락 | O     |
 | `contracts`        | 선택 기간에 계약 완료된 업체   | O     |
-| `interest-high`    | 현재 관심도 `high` 업체   | X     |
-| `interest-medium`  | 현재 관심도 `medium` 업체 | X     |
-| `interest-low`     | 현재 관심도 `low` 업체    | X     |
+| `interest-high`    | 조회 기간/범위의 관심도 high 미계약 업체 | X     |
+| `interest-medium`  | 조회 기간/범위의 관심도 medium 미계약 업체
+| `interest-low`     | 조회 기간/범위의 관심도 low 미계약 업체  
  */
 
 export type DashboardDetailScope = "me" | "all";
@@ -69,6 +69,7 @@ export type DashboardDetailParams = {
   type: DashboardDetailType;
   scope?: DashboardDetailScope;
   period?: DashboardDetailPeriod;
+  ownerId?: string;
   startDate?: string;
   endDate?: string;
   page: number;
