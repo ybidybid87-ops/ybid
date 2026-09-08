@@ -26,6 +26,7 @@ export async function getDashboardDetails({
   type,
   scope = "me",
   period,
+  ownerId,
   startDate,
   endDate,
   page,
@@ -40,6 +41,10 @@ export async function getDashboardDetails({
 
   if (period) {
     searchParams.set("period", period);
+  }
+
+  if (ownerId) {
+    searchParams.set("ownerId", ownerId);
   }
 
   if (startDate) {

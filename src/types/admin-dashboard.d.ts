@@ -1,3 +1,4 @@
+// types/admin-dashboard.d.ts
 export type AdminDashboardPeriod = "all" | "month";
 
 export type AdminDashboardStatsResponse = {

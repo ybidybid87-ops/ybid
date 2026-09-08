@@ -3,8 +3,16 @@
 import AppPagination from "@/components/common/AppPagination";
 import DateRangeFilter from "@/components/common/DateRangeFilter";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
 import { useDashboardDetails } from "@/hooks/dashboard/useDashboardDetails";
+import useUsers from "@/hooks/user/useUsers";
 import {
   DateRange,
   getLastMonthDateRange,
@@ -36,7 +44,7 @@ const DETAIL_INFO: Record<
 > = {
   companies: {
     title: "내 담당 업체",
-    description: "현재 내가 담당하고 있는 업체를 확인합니다.",
+    description: "현재 내가 담당하고 있는 미계약 업체를 확인합니다.",
   },
 
   "contact-schedules": {
@@ -56,17 +64,17 @@ const DETAIL_INFO: Record<
 
   "interest-high": {
     title: "관심도 상 업체",
-    description: "현재 관심도가 상인 담당 업체를 확인합니다.",
+    description: "현재 관심도가 상인 미계약 담당 업체를 확인합니다.",
   },
 
   "interest-medium": {
     title: "관심도 중 업체",
-    description: "현재 관심도가 중인 담당 업체를 확인합니다.",
+    description: "현재 관심도가 중인 미계약 담당 업체를 확인합니다.",
   },
 
   "interest-low": {
     title: "관심도 하 업체",
-    description: "현재 관심도가 하인 담당 업체를 확인합니다.",
+    description: "현재 관심도가 하인 미계약 담당 업체를 확인합니다.",
   },
 };
 
@@ -108,12 +116,17 @@ export default function DashboardDetailSection({ type, scope = "me", period }: P
     getInitialDateRange(type, period),
   );
 
+  const [selectedOwnerId, setSelectedOwnerId] = useState("all");
+
+  const { data: users, isLoading: isUsersLoading } = useUsers(scope === "all");
+
   /*
    * 다른 카드를 선택하면
    * 페이지와 해당 카드의 기본 조회 기간을 초기화
    */
   useEffect(() => {
     setPage(1);
+    setSelectedOwnerId("all");
     setSelectedRange(getInitialDateRange(type, period));
   }, [type, period]);
 
@@ -122,15 +135,21 @@ export default function DashboardDetailSection({ type, scope = "me", period }: P
       type,
       scope,
       period,
+      ownerId: scope === "all" && selectedOwnerId !== "all" ? selectedOwnerId : undefined,
       startDate: selectedRange?.startDate,
       endDate: selectedRange?.endDate,
       page,
       pageSize: DEFAULT_PAGE_SIZE,
     }),
-    [type, scope, period, selectedRange, page],
+    [type, scope, period, selectedOwnerId, selectedRange, page],
   );
 
   const { data, isFetching } = useDashboardDetails(params);
+
+  const handleOwnerChange = (ownerId: string) => {
+    setPage(1);
+    setSelectedOwnerId(ownerId);
+  };
 
   const detailInfo = DETAIL_INFO[type];
 
@@ -138,7 +157,7 @@ export default function DashboardDetailSection({ type, scope = "me", period }: P
 
   const detailDescription =
     scope === "all" && type === "companies"
-      ? "현재 전체 직원이 담당하고 있는 업체를 확인합니다."
+      ? "현재 전체 직원이 담당하고 있는 미계약 업체를 확인합니다."
       : detailInfo.description;
 
   const hasDateFilter =
@@ -185,6 +204,32 @@ export default function DashboardDetailSection({ type, scope = "me", period }: P
 
         <p className="mt-1 text-sm text-muted-foreground">{detailDescription}</p>
       </div>
+
+      {scope === "all" && (
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium">담당자</span>
+
+          <Select
+            value={selectedOwnerId}
+            onValueChange={handleOwnerChange}
+            disabled={isUsersLoading}
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="담당자 선택" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem value="all">전체 담당자</SelectItem>
+
+              {users?.map((user) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {hasDateFilter && selectedRange && (
         <div className="space-y-2">
