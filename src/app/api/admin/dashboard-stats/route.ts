@@ -58,6 +58,9 @@ export async function GET(request: NextRequest) {
       prisma.companies.count({
         where: {
           is_archived: false,
+          sales_status: {
+            not: "contracted",
+          },
           ...(createdAtWhere && {
             created_at: createdAtWhere,
           }),
@@ -68,6 +71,9 @@ export async function GET(request: NextRequest) {
         by: ["interest_level"],
         where: {
           is_archived: false,
+          sales_status: {
+            not: "contracted",
+          },
           ...(createdAtWhere && {
             created_at: createdAtWhere,
           }),

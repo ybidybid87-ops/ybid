@@ -72,7 +72,9 @@ export async function GET(request: NextRequest) {
       where: {
         ...companyWhere,
         is_archived: false,
-
+        sales_status: {
+          not: "contracted",
+        },
         ...(!isManagement && {
           created_at: {
             gte: todayStart,
@@ -87,7 +89,9 @@ export async function GET(request: NextRequest) {
       where: {
         ...companyWhere,
         is_archived: false,
-
+        sales_status: {
+          not: "contracted",
+        },
         ...(!isManagement && {
           created_at: {
             gte: todayStart,
@@ -130,8 +134,9 @@ export async function GET(request: NextRequest) {
 
     prisma.companies.count({
       where: {
-        ...companyWhere,
+        contract_owner_id: user.id,
         is_archived: false,
+        sales_status: "contracted",
         contracted_at: isManagement
           ? {
               gte: monthStart,

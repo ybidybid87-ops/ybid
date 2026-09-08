@@ -44,6 +44,8 @@ export async function GET(request: NextRequest) {
 
   const type = request.nextUrl.searchParams.get("type") as DashboardDetailType | null;
 
+  const ownerId = request.nextUrl.searchParams.get("ownerId");
+
   const startDate = request.nextUrl.searchParams.get("startDate");
   const endDate = request.nextUrl.searchParams.get("endDate");
 
@@ -138,12 +140,27 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  if (ownerId && scope !== "all") {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "담당자 필터는 전체 조회에서만 사용할 수 있습니다.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
   const skip = (page - 1) * pageSize;
 
   const companyWhere =
     scope === "all"
       ? {
           is_archived: false,
+          ...(ownerId && {
+            owner_id: ownerId,
+          }),
         }
       : {
           owner_id: user.id,
@@ -208,6 +225,9 @@ export async function GET(request: NextRequest) {
 
     const where = {
       ...companyWhere,
+      sales_status: {
+        not: "contracted",
+      },
       ...(createdAtWhere && {
         created_at: createdAtWhere,
       }),
@@ -259,6 +279,9 @@ export async function GET(request: NextRequest) {
 
     const where = {
       ...companyWhere,
+      sales_status: {
+        not: "contracted",
+      },
       interest_level: interestLevel,
       ...(createdAtWhere && {
         created_at: createdAtWhere,
@@ -332,9 +355,21 @@ export async function GET(request: NextRequest) {
         lt: endDate,
       };
     }
+    const contractCompanyWhere =
+      scope === "all"
+        ? {
+            is_archived: false,
+            ...(ownerId && {
+              contract_owner_id: ownerId,
+            }),
+          }
+        : {
+            contract_owner_id: user.id,
+            is_archived: false,
+          };
 
     const where = {
-      ...companyWhere,
+      ...contractCompanyWhere,
       sales_status: "contracted",
       ...(contractedAtWhere && {
         contracted_at: contractedAtWhere,

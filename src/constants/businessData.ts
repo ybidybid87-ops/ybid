@@ -1,3 +1,5 @@
+// app/constants/businessData.ts
+
 export const BUSINESS_GROUPS = {
   professional: {
     label: "전문",
