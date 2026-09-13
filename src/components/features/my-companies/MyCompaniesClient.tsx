@@ -16,8 +16,14 @@ import {
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
 import useCompanies from "@/hooks/companies/useCompanies";
 import useUser from "@/hooks/user/useUser";
+import { CompanyDateFilterValue, CompanyListParams } from "@/types/company";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import CompanyDateFilter from "./CompanyDateFilter";
+
+const DEFAULT_DATE_FILTER: CompanyDateFilterValue = {
+  type: "all",
+};
 
 type Props = {
   ownerId?: string;
@@ -33,20 +39,23 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
   const [interestLevel, setInterestLevel] = useState("all");
   const [salesStatus, setSalesStatus] = useState("all");
   const [region, setRegion] = useState("all");
+  const [dateFilter, setDateFilter] = useState<CompanyDateFilterValue>(DEFAULT_DATE_FILTER);
 
   const targetOwnerId = ownerId ?? user?.id;
 
-  const params = useMemo(
+  const params = useMemo<CompanyListParams>(
     () => ({
       ownerId: targetOwnerId,
       keyword: searchKeyword,
       interestLevel: interestLevel === "all" ? undefined : interestLevel,
       salesStatus: salesStatus === "all" ? undefined : salesStatus,
       region: region === "all" ? undefined : region,
+      startDate: dateFilter.type === "all" ? undefined : dateFilter.startDate,
+      endDate: dateFilter.type === "all" ? undefined : dateFilter.endDate,
       page,
       pageSize: DEFAULT_PAGE_SIZE,
     }),
-    [targetOwnerId, searchKeyword, interestLevel, salesStatus, region, page],
+    [targetOwnerId, searchKeyword, interestLevel, salesStatus, region, dateFilter, page],
   );
 
   const {
@@ -62,12 +71,17 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
 
   const resetFilters = () => {
     setPage(1);
-
     setKeyword("");
     setSearchKeyword("");
     setInterestLevel("all");
     setSalesStatus("all");
     setRegion("all");
+    setDateFilter(DEFAULT_DATE_FILTER);
+  };
+
+  const handleDateFilterChange = (value: CompanyDateFilterValue) => {
+    setPage(1);
+    setDateFilter(value);
   };
 
   if ((!ownerId && isUserPending) || isCompaniesPending) {
@@ -95,6 +109,12 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
               {isCompaniesFetching ? "검색 중..." : "검색"}
             </Button>
           </div>
+
+          <CompanyDateFilter
+            value={dateFilter}
+            onChange={handleDateFilterChange}
+            isLoading={isCompaniesFetching}
+          />
 
           <div className="flex items-center gap-3">
             <Select
