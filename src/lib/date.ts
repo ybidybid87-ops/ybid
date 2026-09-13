@@ -183,3 +183,21 @@ export function getThisYearDateRange(): DateRange {
     endDate: getTodayDateString(),
   };
 }
+
+// 특정 연도 전체 범위
+export function getYearDateRange(year: number): DateRange {
+  return {
+    startDate: formatLocalDate(year, 1, 1),
+    endDate: formatLocalDate(year, 12, 31),
+  };
+}
+
+// 특정 연/월 전체 범위
+export function getYearMonthDateRange(year: number, month: number): DateRange {
+  const lastDay = new Date(year, month, 0);
+
+  return {
+    startDate: formatLocalDate(year, month, 1),
+    endDate: formatLocalDate(year, month, lastDay.getDate()),
+  };
+}
