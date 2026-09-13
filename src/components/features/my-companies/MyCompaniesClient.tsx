@@ -16,7 +16,6 @@ import {
 import { DEFAULT_PAGE_SIZE } from "@/constants/pagination";
 import useCompanies from "@/hooks/companies/useCompanies";
 import useUser from "@/hooks/user/useUser";
-import { DateRange } from "@/lib/date";
 import { CompanyDateFilterValue, CompanyListParams } from "@/types/company";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -40,7 +39,6 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
   const [interestLevel, setInterestLevel] = useState("all");
   const [salesStatus, setSalesStatus] = useState("all");
   const [region, setRegion] = useState("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [dateFilter, setDateFilter] = useState<CompanyDateFilterValue>(DEFAULT_DATE_FILTER);
 
   const targetOwnerId = ownerId ?? user?.id;
@@ -69,11 +67,6 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
   const handleSearch = () => {
     setPage(1);
     setSearchKeyword(keyword);
-  };
-
-  const handleDateSearch = (range?: DateRange) => {
-    setPage(1);
-    setDateRange(range);
   };
 
   const resetFilters = () => {
