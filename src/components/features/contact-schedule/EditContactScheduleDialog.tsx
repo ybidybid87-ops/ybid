@@ -15,9 +15,18 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { EditableContactSchedule } from "@/components/common/buttons/EditContactScheduleButton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import useUpdateCompany from "@/hooks/companies/useUpdateCompany";
 import useCreateContactSchedule from "@/hooks/contact-schedule/useCreateContactSchedule";
 import useUpdateContactSchedule from "@/hooks/contact-schedule/useUpdateContactSchedule";
 import { getInterestBadgeStyle } from "@/lib/utils";
+import { InterestLevel } from "@/types/common";
 import { format } from "date-fns";
 import Link from "next/link";
 
@@ -28,11 +37,13 @@ type Props = {
 };
 
 export default function EditContactScheduleDialog({ open, onOpenChange, contact }: Props) {
-  const { mutate: updateMutation, isPending: isUpdating } = useUpdateContactSchedule();
+  const { mutateAsync: updateSchedule, isPending: isUpdating } = useUpdateContactSchedule();
 
-  const { mutate: createMutation, isPending: isCreating } = useCreateContactSchedule();
+  const { mutateAsync: createSchedule, isPending: isCreating } = useCreateContactSchedule();
 
-  const isPending = isUpdating || isCreating;
+  const { mutateAsync: updateCompany, isPending: isUpdatingCompany } = useUpdateCompany();
+
+  const isPending = isUpdating || isCreating || isUpdatingCompany;
 
   const company = contact.companies;
 
@@ -41,51 +52,77 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
   const [scheduledAt, setScheduledAt] = useState(contact.scheduled_at?.slice(0, 10) ?? "");
   const [memo, setMemo] = useState("");
 
+  const [interestLevel, setInterestLevel] = useState<InterestLevel>(company.interest_level);
+
   useEffect(() => {
     if (!open) {
       return;
     }
 
     setScheduledAt(contact.scheduled_at?.slice(0, 10) ?? "");
+    setInterestLevel(company.interest_level);
     setMemo("");
-  }, [open, contact]);
+  }, [open, contact, company.interest_level]);
 
-  const handleSave = () => {
-    if (!scheduledAt) {
+  const originalScheduledAt = contact.scheduled_at?.slice(0, 10) ?? "";
+
+  const isScheduleChanged = scheduledAt !== originalScheduledAt;
+
+  const isInterestLevelChanged = interestLevel !== company.interest_level;
+
+  const hasChanges = isScheduleChanged || isInterestLevelChanged;
+
+  const handleSave = async () => {
+    if (!hasChanges) {
       return;
     }
 
-    if (contact.id) {
-      updateMutation(
-        {
-          scheduleId: contact.id,
-          input: {
-            scheduledAt,
-            memo: memo || undefined,
-          },
-        },
-        {
-          onSuccess: () => {
-            onOpenChange(false);
-          },
-        },
-      );
+    try {
+      const mutations: Promise<unknown>[] = [];
 
-      return;
+      if (isInterestLevelChanged) {
+        mutations.push(
+          updateCompany({
+            companyId: company.id,
+            input: {
+              interestLevel,
+            },
+          }),
+        );
+      }
+
+      if (isScheduleChanged) {
+        if (!scheduledAt) {
+          return;
+        }
+
+        if (contact.id) {
+          mutations.push(
+            updateSchedule({
+              scheduleId: contact.id,
+              input: {
+                scheduledAt,
+                memo: memo || undefined,
+              },
+            }),
+          );
+        } else {
+          mutations.push(
+            createSchedule({
+              companyId: company.id,
+              scheduledAt,
+              memo: memo || undefined,
+            }),
+          );
+        }
+      }
+
+      await Promise.all(mutations);
+
+      onOpenChange(false);
+    } catch (error) {
+      console.error("업체 정보 변경 실패:", error);
     }
-
-    createMutation(
-      {
-        companyId: contact.companies.id,
-        scheduledAt,
-        memo: memo || undefined,
-      },
-      {
-        onSuccess: () => {
-          onOpenChange(false);
-        },
-      },
-    );
   };
 
   const today = format(new Date(), "yyyy-MM-dd");
@@ -145,6 +182,29 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
             </div>
           </div>
 
+          {/* 관심도 */}
+          <div className="flex gap-8">
+            <label className="w-28 pt-3 text-sm font-semibold">관심도</label>
+
+            <div className="flex-1">
+              <Select
+                value={interestLevel}
+                onValueChange={(value) => setInterestLevel(value as InterestLevel)}
+                disabled={isPending}
+              >
+                <SelectTrigger className="h-14 w-full rounded-xl">
+                  <SelectValue placeholder="관심도를 선택해주세요." />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="high">상</SelectItem>
+                  <SelectItem value="medium">중</SelectItem>
+                  <SelectItem value="low">하</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {/* 연락 예정일 */}
           <div className="flex gap-8">
             <label className="w-28 pt-3 text-sm font-semibold">연락 예정일</label>
@@ -166,37 +226,6 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
             </div>
           </div>
 
-          {/* 메모: 추후 상세페이지에 어떻게 보여질지 고려할 것 */}
-          {/* <div className="flex gap-8">
-            <label className="w-28 pt-3 text-sm font-semibold">메모</label>
-
-            <div className="flex-1">
-              <Textarea
-                placeholder="연락 일정 또는 내용을 메모해 주세요."
-                value={memo}
-                onChange={(e) => setMemo(e.target.value)}
-                className="min-h-40 rounded-xl"
-              />
-
-              <div className="mt-2 flex justify-end text-sm text-muted-foreground">
-                {memo.length}/500
-              </div>
-            </div>
-          </div> */}
-
-          {/* <div className="rounded-2xl border border-blue-100 bg-blue-50 p-5">
-            <div className="mb-2 flex items-center gap-2 font-semibold text-blue-700">
-              <Info className="h-5 w-5" />
-              변경 후 연락 일정 안내
-            </div>
-
-            <ul className="space-y-1 text-sm text-slate-600">
-              <li>일정 변경 시 해당 날짜의 연락 예정에 반영됩니다.</li>
-
-              <li>변경된 일정은 대시보드와 연락 예정 페이지에 즉시 적용됩니다.</li>
-            </ul>
-          </div> */}
-
           {/* 버튼 */}
           <div className="flex items-center justify-between pt-2">
             <Button asChild variant="outline" size="lg">
@@ -208,7 +237,7 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
                 취소
               </Button>
 
-              <Button size="lg" onClick={handleSave} disabled={isPending || !scheduledAt}>
+              <Button size="lg" onClick={handleSave} disabled={isPending || !hasChanges}>
                 {isPending ? "저장 중..." : "저장"}
               </Button>
             </div>

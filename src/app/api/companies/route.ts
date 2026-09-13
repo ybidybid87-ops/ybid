@@ -2,7 +2,7 @@
 
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/constants/pagination";
 import { Prisma } from "@/generated/prisma/client";
-import { parseKoreaDate } from "@/lib/date";
+import { getNextKoreaDateTime, parseKoreaDate, parseKoreaDateTime } from "@/lib/date";
 import { getUser } from "@/services/actions/user/user.api";
 import { InterestLevel } from "@/types/common";
 import { CreateCompanyRequest } from "@/types/company";
@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
   const interestLevel = searchParams.get("interestLevel");
   const salesStatus = searchParams.get("salesStatus");
   const region = searchParams.get("region");
+  const startDate = searchParams.get("startDate");
+  const endDate = searchParams.get("endDate");
 
   const page = Math.max(Number(searchParams.get("page") ?? 1), 1);
 
@@ -38,6 +40,14 @@ export async function GET(request: NextRequest) {
     ...(teamId && {
       team_id: teamId,
     }),
+
+    ...(startDate &&
+      endDate && {
+        created_at: {
+          gte: parseKoreaDateTime(startDate),
+          lt: getNextKoreaDateTime(endDate),
+        },
+      }),
 
     ...(interestLevel && {
       interest_level: interestLevel as InterestLevel,

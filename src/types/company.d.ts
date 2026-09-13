@@ -40,6 +40,16 @@ export type CreateCompanyRequest = {
 
 export type UpdateCompanyRequest = Partial<CreateCompanyRequest>;
 
+export type CompanyDateFilterType = "all" | "year" | "month" | "custom";
+
+export type CompanyDateFilterValue = {
+  type: CompanyDateFilterType;
+  year?: number;
+  month?: number;
+  startDate?: string;
+  endDate?: string;
+};
+
 export type CompanyListParams = {
   ownerId?: string;
   teamId?: string;
@@ -47,7 +57,8 @@ export type CompanyListParams = {
   interestLevel?: string;
   salesStatus?: string;
   region?: string;
-
+  startDate?: string;
+  endDate?: string;
   page?: number;
   pageSize?: number;
 };

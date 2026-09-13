@@ -50,6 +50,7 @@ export default function CompanyTable({
               <th className="px-5 py-4 text-left">영업 상태</th>
               <th className="px-5 py-4 text-left">다음 연락일</th>
               <th className="px-5 py-4 text-left">등록일</th>
+              <th className="px-5 py-4 text-left">계약일</th>
               <th className="px-5 py-4 text-center">관리</th>
             </tr>
           </thead>
@@ -98,6 +99,10 @@ export default function CompanyTable({
                   <td className="px-5 py-4">{formatDate(company.created_at)}</td>
 
                   <td className="px-5 py-4">
+                    {company.contracted_at ? formatDate(company.contracted_at) : "-"}
+                  </td>
+
+                  <td className="px-5 py-4">
                     <div className="flex items-center justify-center gap-2">
                       <EditContactScheduleButton
                         className="bg-primary text-primary-foreground hover:bg-primary/90"
@@ -125,7 +130,7 @@ export default function CompanyTable({
 
             {companies.length === 0 && (
               <tr>
-                <td colSpan={10} className="py-16 text-center text-gray-500">
+                <td colSpan={11} className="py-16 text-center text-gray-500">
                   담당 중인 업체가 없습니다.
                 </td>
               </tr>
