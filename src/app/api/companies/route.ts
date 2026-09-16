@@ -42,12 +42,20 @@ export async function GET(request: NextRequest) {
     }),
 
     ...(startDate &&
-      endDate && {
-        created_at: {
-          gte: parseKoreaDateTime(startDate),
-          lt: getNextKoreaDateTime(endDate),
-        },
-      }),
+      endDate &&
+      (salesStatus === "contracted"
+        ? {
+            contracted_at: {
+              gte: parseKoreaDateTime(startDate),
+              lt: getNextKoreaDateTime(endDate),
+            },
+          }
+        : {
+            created_at: {
+              gte: parseKoreaDateTime(startDate),
+              lt: getNextKoreaDateTime(endDate),
+            },
+          })),
 
     ...(interestLevel && {
       interest_level: interestLevel as InterestLevel,
