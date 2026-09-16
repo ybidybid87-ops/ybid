@@ -116,6 +116,12 @@ export default function MyCompaniesClient({ ownerId, showCreateButton = true }: 
             isLoading={isCompaniesFetching}
           />
 
+          <p className="text-xs text-muted-foreground">
+            {salesStatus === "contracted"
+              ? "계약 완료일 기준으로 조회합니다."
+              : "업체 등록일 기준으로 조회합니다."}
+          </p>
+
           <div className="flex items-center gap-3">
             <Select
               value={interestLevel}
