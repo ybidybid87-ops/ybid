@@ -1,8 +1,12 @@
 "use client";
 
-import { userQueries } from "@/services/query-options/user";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
+import { userQueries } from "@/services/query-options/user";
+import type { AdminUser, role } from "@/types/users";
+
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,7 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { role } from "@/types/users";
+
+import EditUserNameDialog from "./EditUserNameDialog";
 
 const ROLE_LABELS: Record<role, string> = {
   admin: "관리자",
@@ -20,6 +25,8 @@ const ROLE_LABELS: Record<role, string> = {
 };
 
 export default function UserManagementClient() {
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+
   const { data: users, isPending, isError } = useQuery(userQueries.adminList());
 
   if (isPending) {
@@ -46,6 +53,7 @@ export default function UserManagementClient() {
               <TableHead>권한</TableHead>
               <TableHead>상태</TableHead>
               <TableHead className="text-right">담당 업체</TableHead>
+              <TableHead className="text-right">관리</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -61,12 +69,23 @@ export default function UserManagementClient() {
                 <TableCell>{user.is_active ? "활성" : "비활성"}</TableCell>
 
                 <TableCell className="text-right">{user._count.companies}</TableCell>
+
+                <TableCell className="text-right">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingUser(user)}
+                  >
+                    이름 변경
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
 
             {users.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   등록된 사용자가 없다.
                 </TableCell>
               </TableRow>
@@ -74,6 +93,14 @@ export default function UserManagementClient() {
           </TableBody>
         </Table>
       </div>
+
+      {editingUser && (
+        <EditUserNameDialog
+          key={editingUser.id}
+          user={editingUser}
+          onClose={() => setEditingUser(null)}
+        />
+      )}
     </div>
   );
 }
