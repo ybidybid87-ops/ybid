@@ -1,3 +1,4 @@
+//app/api/users/[id]/deletion-preview/route.ts
 import { getUser } from "@/services/actions/user/user.api";
 import { NextResponse } from "next/server";
 import prisma from "prisma/prisma";

@@ -171,9 +171,24 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
         // 담당 업체 삭제
         // 업체에 연결된 연락 일정, 이력, 면허, 담당자,
         // 알림은 스키마의 Cascade 정책에 따라 삭제
+
         const companies = await tx.companies.deleteMany({
           where: {
             owner_id: id,
+          },
+        });
+
+        // 직원이 읽은 알림 기록 삭제
+        await tx.notification_reads.deleteMany({
+          where: {
+            user_id: id,
+          },
+        });
+
+        // 직원의 public.users 레코드 삭제
+        await tx.users.delete({
+          where: {
+            id,
           },
         });
 
@@ -194,7 +209,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     );
 
     return NextResponse.json({
-      message: "직원의 업무 데이터 정리가 완료되었습니다.",
+      message: "직원 계정 및 관련 데이터가 삭제되었습니다.",
       data: {
         userId: id,
         userName: targetUser.name,
