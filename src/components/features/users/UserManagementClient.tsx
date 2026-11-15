@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import DeleteUserPreviewDialog from "./DeleteUserPreviewDialog";
 import EditUserNameDialog from "./EditUserNameDialog";
 
 const ROLE_LABELS: Record<role, string> = {
@@ -26,6 +27,7 @@ const ROLE_LABELS: Record<role, string> = {
 
 export default function UserManagementClient() {
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [deletingUser, setDeletingUser] = useState<AdminUser | null>(null);
 
   const { data: users, isPending, isError } = useQuery(userQueries.adminList());
 
@@ -70,7 +72,15 @@ export default function UserManagementClient() {
 
                 <TableCell className="text-right">{user._count.companies}</TableCell>
 
-                <TableCell className="text-right">
+                <TableCell className="text-right gap-1 flex justify-end">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setDeletingUser(user)}
+                  >
+                    삭제
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"
@@ -99,6 +109,13 @@ export default function UserManagementClient() {
           key={editingUser.id}
           user={editingUser}
           onClose={() => setEditingUser(null)}
+        />
+      )}
+      {deletingUser && (
+        <DeleteUserPreviewDialog
+          key={deletingUser.id}
+          user={deletingUser}
+          onClose={() => setDeletingUser(null)}
         />
       )}
     </div>

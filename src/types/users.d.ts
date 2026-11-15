@@ -19,3 +19,22 @@ export type AdminUser = Pick<
     companies: number;
   };
 };
+
+export interface UserDeletionPreview {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  ownedCompanies: number;
+  companyContacts: number;
+  businessLicenses: number;
+  companySchedules: number;
+  companyHistories: number;
+  externalCreatedSchedules: number;
+  externalCompletedSchedules: number;
+  externalHistories: number;
+  externalContractCompanies: number;
+  externalArchivedCompanies: number;
+  externalNotifications: number;
+}
