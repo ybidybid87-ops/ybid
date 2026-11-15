@@ -1,6 +1,14 @@
 "use client";
 
-import { Building2, CalendarDays, ChartNoAxesCombined, LayoutDashboard, Users } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  ChartNoAxesCombined,
+  LayoutDashboard,
+  UserCog,
+  Users,
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -15,8 +23,8 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+
 import useUser from "@/hooks/user/useUser";
-import Image from "next/image";
 import MonthlySalesRankingCard from "./features/monthly-sales-ranking/MonthlySalesRankingCard";
 
 const salesMenus = [
@@ -30,11 +38,6 @@ const salesMenus = [
     url: "/my-companies",
     icon: Building2,
   },
-  /* {
-    title: "계약 완료 현황",
-    url: "/contracts",
-    icon: BadgeCheck,
-  }, */
 ];
 
 const adminMenus = [
@@ -55,9 +58,20 @@ const adminMenus = [
   },
 ];
 
+const adminOnlyMenus = [
+  {
+    title: "사용자 관리",
+    url: "/admin/users",
+    icon: UserCog,
+  },
+];
+
 export default function AppSidebar() {
   const { data: user } = useUser();
-  const canAccessAdmin = user?.role === "leader" || user?.role === "admin";
+
+  const isAdmin = user?.role === "admin";
+  const canAccessAdmin = isAdmin || user?.role === "leader";
+
   return (
     <Sidebar variant="sidebar" className="font-semibold bg-white h-full">
       <SidebarHeader>
@@ -85,6 +99,7 @@ export default function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* 관리자 및 팀장 메뉴 */}
         {canAccessAdmin && (
           <>
             <SidebarSeparator />
@@ -106,6 +121,19 @@ export default function AppSidebar() {
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
+
+                  {/* 관리자 전용 메뉴 */}
+                  {isAdmin &&
+                    adminOnlyMenus.map((menu) => (
+                      <SidebarMenuItem key={menu.title}>
+                        <SidebarMenuButton asChild tooltip={menu.title}>
+                          <Link href={menu.url}>
+                            <menu.icon className="size-4" />
+                            <span className="text-lg">{menu.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

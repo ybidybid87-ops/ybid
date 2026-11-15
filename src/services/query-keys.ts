@@ -7,6 +7,8 @@ export const userKeys = {
   me: () => [...userKeys.all, "me"] as const,
 
   list: () => [...userKeys.all, "list"] as const,
+
+  adminList: () => [...userKeys.all, "admin-list"] as const,
 };
 
 export const companyKeys = {
